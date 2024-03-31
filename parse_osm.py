@@ -55,16 +55,39 @@ magic_block['num_of_blocks'] = block_index
 # 84, 390 βγαίνουν τώρα που τα τρεχω
 
 # Εκτύπωση των nodes
-for i in range(1, len(nodes)):
-    for j in range(len(nodes[i])):
-        print(nodes[i][j], "Block: ", i, "Node: ", j)
-        
+# for i in range(1, len(nodes)):
+#     for j in range(len(nodes[i])):
+#         print(nodes[i][j], "Block: ", i, "Node: ", j)
+
+
 # Convert the 'nodes' list to JSON format
-nodes_json = json.dumps(nodes)
+magic_block = json.dumps(magic_block)
+nodes_json = []
+for i in range(1, len(nodes)):  # json dumps μαγειες (πρεπει να γινει καθε αντικειμενο dict για να γινει serialize)
+    nodes_json.append([node1.to_dict() for node1 in nodes[i]])
+nodes_json = json.dumps(nodes_json)
 
 # Save the JSON data to a file
 with open('datafile.json', 'w') as file:
+    file.write(magic_block + "\n")
     file.write(nodes_json)
 
+
+
+# Επαναφορά του περιεχομένου του αρχείου datafile.json - για "εκπαιδευτικούς" σκοπούς
+    
+with open('datafile.json', 'r') as file:
+    magic_block = json.loads(file.readline())
+    nodes_json = json.loads(file.readline())
+
+nodes = []
+nodes.append(magic_block)
+for i in range(len(nodes_json)):
+    nodes.append([node.Node(node1['id'], node1['location'], node1['recID']) for node1 in nodes_json[i]])
+
+
+for i in range(1, len(nodes)):
+    for j in range(len(nodes[i])):
+        print(nodes[i][j], "Block: ", i, "Node: ", j)
 
 
