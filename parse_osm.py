@@ -1,6 +1,6 @@
 import xml.etree.cElementTree as et
 import os
-import node
+import record
 import json
 
 nodes = []  # Define nodes in the global scope
@@ -23,7 +23,7 @@ nodes.append(magic_block)
 for element in root.iter('node'):
     # print(node.attrib)
     # στο module node η κλάση node με τη στατική μέθοδο... --> node.node...
-    node.Node.define_block_size(int(element.attrib['id']), (float(element.attrib['lat']), float(element.attrib['lon'] ))) 
+    record.Record.define_block_size(int(element.attrib['id']), (float(element.attrib['lat']), float(element.attrib['lon'] ))) 
     # αντικείμενο που δεν αποθηκεύεται πουθενά (recID = -1)
     # το τρεχω μονο μία φορα για να γινουν initialized τα obj_size, block_size
     break
@@ -35,14 +35,14 @@ nodes.append([])  # πρώτο block
 
 for element in root.iter('node'):
     counter += 1
-    if counter % node.Node.block_size == 0:  # μηδενίζεται κάθε [block_size] επαναλήψεις
+    if counter % record.Node.block_size == 0:  # μηδενίζεται κάθε [block_size] επαναλήψεις
         block_index += 1
         nodes.append([])  # επόμενο block αποθήκευσης
     
     id = int(element.attrib['id'])
     location = (float(element.attrib['lat']), float(element.attrib['lon']))
     recID = block_index  # Αποθήκευση του node στο block που δείχνει το block_index
-    nodes[block_index].append(node.Node(id, location, recID))
+    nodes[block_index].append(record.Node(id, location, recID))
     
 
 
@@ -83,7 +83,7 @@ with open('datafile.json', 'r') as file:
 nodes = []
 nodes.append(magic_block)
 for i in range(len(nodes_json)):
-    nodes.append([node.Node(node1['id'], node1['location'], node1['recID']) for node1 in nodes_json[i]])
+    nodes.append([record.Record(node1['id'], node1['location'], node1['recID']) for node1 in nodes_json[i]])
 
 
 for i in range(1, len(nodes)):
