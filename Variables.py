@@ -1,0 +1,6 @@
+BLOCKSIZE = 32000
+RECORDSIZE = 256
+ENTRYSIZE = 256
+INPUTFILE = "map.xml"
+DATAFILE = "datafile.json"
+M = 0.5
