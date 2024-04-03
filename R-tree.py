@@ -1,38 +1,74 @@
 from Record import Record
-import Variables
-
+from Block import Block
 class RTree():
 
 	def __init__(self):
-		self.nodeMaxEntries: int = (Variables.BLOCKSIZE // Variables.RECORDSIZE) #temporary I guess for now
-		self.nodes = {"root": {"id": 0, "level": 0, "first_insert": True}}
-		self.m: int = Variables.M * self.nodeMaxEntries
-		"""
-        nodes = {"root": {"id": 0, "level": 0},
-                    1: {"id": 1, "level":0, "type": n, "rectangle" = []}...}
-        """
+		self.blocks = []
+		self.root = None	
+	
 
 	def insert(self, record: Record):
 		"""
 		:param record: Record object to insert
 		:return: None
 		"""
+		if (self.root == None):
+			self.root = Block(blockID=0, isLeaf=True, levels=1)
+			self.root.insertRecord(record)
+			return
 		
-		# Step 1: Find the leaf node to insert the record. Invoke chooseLeaf to select a leaf node L in which to place the new record
+		#I1 Invoke ChooseSubtree. with the level as a parameter,
+		# to find an appropriate node N, m which to place the
+		# new entry E
+		subtree = self.chooseSubtree(self.root,self.root.levels)
+		overflowFlag = False
 
 
-		# Step 2: Add the record to the leaf node L. If L has room for another entry, install E. Otherwise, invoke SplitNode to obtain L and LL containing E and all the old entries of L
+		if (subtree.__len__() < subtree.max):
+			 # If N has less than M entries, accommodate E in N
+			subtree.insertRecord(record)
+			
+		else:
+			# If N has M entries, invoke OverflowTreatment
+			overflowFlag = True
+			self.overflowTreatment(subtree,subtree.levels,record)
+			
+
+	def chooseSubtree(self, block: Block, levelToAdd: int,) -> Block:
+		"""
+        Choose the subtree to insert a new record based on 
+		minimum overlap or area cost.
+        """
+		node = self.root
+		
+		while (not node.isLeaf):
+			 # If the child pointers point to leaves, 
+			# determine minimum overlap cost
+			if (levelToAdd == 1): # If at level 1, just use minimum overlap cost
+				minCost = self.minOverlap(node,block)
+
+			else:
+				# Otherwise, use minimum area cost selection
+				minCost = self.minArea(node,block)
+			
+			# Choose the child node based on the minimum cost
+			
+			# Don't know yet how to implement this
+			
+			# Adjust level accordingly
+			levelToAdd -= 1
 
 
-		# Step 3: Propagate changes upward. Invoke AdjustTre on L, also passing LL if a split was performed
+		return node
+		
 
 
-		# Step 4: Grow tree taller. If node split propagation caused the root to split, create a new root whose children are the two resulting nodes
-
-
-
-
-
+	def delete(self, record: Record):
+		"""
+		:param record: Record object to delete
+		:return: None
+		"""
+		pass
 
 	def search(self, record: Record):
 		"""
