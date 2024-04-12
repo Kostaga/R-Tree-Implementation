@@ -1,10 +1,14 @@
 from Record import Record
 from Block import Block
+from Bounding_area import BoundingArea
+
+
 class RTree():
 
 	def __init__(self):
 		self.blocks = []
-		self.root = None	
+		self.root = None
+		self.levels = [True for i in levels]
 	
 
 	def insert(self, record: Record):
@@ -13,79 +17,82 @@ class RTree():
 		:return: None
 		"""
 		if (self.root == None):
-			self.root = Block(blockID=0, isLeaf=True, levels=1)
-			self.root.insertRecord(record)
+			self.root = Block(isLeaf=True, levels=1)
+			self.root.insert(record)
 			return
 		
-		#I1 Invoke ChooseSubtree. with the level as a parameter,
+		# I1 Invoke ChooseSubtree. with the level as a parameter,
 		# to find an appropriate node N, m which to place the
 		# new entry E
-		subtree = self.chooseSubtree(self.root,self.root.levels)
+		leaf: Block = self.chooseSubtree(record)
 		overflowFlag = False
 
 
-		if (subtree.__len__() < subtree.max):
-			 # If N has less than M entries, accommodate E in N
-			subtree.insertRecord(record)
+		if not leaf.is_full():
+			# If N has less than M entries, accommodate E in N
+			leaf.insert(record)
 			
 		else:
 			# If N has M entries, invoke OverflowTreatment
 			overflowFlag = True
-			self.overflowTreatment(subtree,subtree.levels,record)
+			self.overflowTreatment(leaf,leaf.levels,record)
 			
 
-	def chooseSubtree(self, block: Block, levelToAdd: int,) -> Block:
+	def chooseSubtree(self, record: Record) -> Block:
 		"""
         Choose the subtree to insert a new record based on 
 		minimum overlap or area cost.
         """
-
-		#CSl Set N to be the root
-		node = self.root
+		#CS1 Let N be the root
+		current_node: Block = self.root
 		#CS2 If N 1s a leaf, return N 
-		if (node.isLeaf):
-			return node
+		if (current_node.isLeaf):
+			return current_node
 		
 		# else
 		# if the childpointers in N point to leaves, determine minimum overlap cost
-		if all(child.isLeaf for child in node.childPointers):
-			# Determine minimum overlap cost
-			min_overlap_cost = float('inf')
+		
+		# Determine minimum overlap cost
+		while not current_node.elements[0].next_block.isLeaf:
+			# CS3 Choose the entry E from N that needs least area enlargement to include R
 			min_area_enlargement = float('inf')
-			min_area = float('inf')
-			chosen_entry = None
+			best_mbr = None
+			for mbr in current_node.elements:
+				area_enlargement = mbr.calculate_area_enlargement(record)
+				if area_enlargement < min_area_enlargement:
+					min_area_enlargement = area_enlargement
+					best_mbr = mbr
+			
+			current_node = best_mbr.next_block
 
-			for entry in node.records:
-				overlap_cost = entry.rectangle.calculateOverlapCost(record.rectangle)
-				if overlap_cost < min_overlap_cost:
-					min_overlap_cost = overlap_cost
-					min_area_enlargement = entry.rectangle.calculateAreaEnlargement(record.rectangle)
-					min_area = entry.rectangle.calculateArea()
-					chosen_entry = entry
-				elif overlap_cost == min_overlap_cost:
-					area_enlargement = entry.rectangle.calculateAreaEnlargement(record.rectangle)
-					if area_enlargement < min_area_enlargement:
-						min_area_enlargement = area_enlargement
-						min_area = entry.rectangle.calculateArea()
-						chosen_entry = entry
-					elif area_enlargement == min_area_enlargement:
-						area = entry.rectangle.calculateArea()
-						if area < min_area:
-							min_area = area
-							chosen_entry = entry
+		# Current node has child pointers that point to leaves
+		# Determine minimum area enlargement
+		# min_overlap_cost = float('inf')
+		# PASS
 
-			return chosen_entry.childPointer
-		
-
-		
-
-
+		return current_node
+				
+	
+	def overflowTreatment(self,level: int):
+		# OTl If the level 1s not the root level and this IS the first
+		# call of OverflowTreatment m the given level
+		# durmg the Insertion of one data rectangle, then
+		# invoke Reinsert
+  		if level != 1:
+			# Reinsert()
+			pass
+		else:
+			# SplitNode()
+			pass
+		 
+			
 	def delete(self, record: Record):
 		"""
 		:param record: Record object to delete
 		:return: None
 		"""
 		pass
+
 
 	def search(self, record: Record):
 		"""
@@ -95,7 +102,7 @@ class RTree():
 		pass
 
 
-	def rangeQuery(self, corners: list) -> list:
+	def rangeQuery(self, area: BoundingArea) -> list:
 		"""
 		:param corners: A list of (d-1)-dimensional rectangle's corners
 		:return: List of records included in the range query

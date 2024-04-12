@@ -1,5 +1,4 @@
 from Record import Record
-import numpy as np
 
 class Bounds:
     def __init__(self, lower, upper):
@@ -15,5 +14,3 @@ class Bounds:
     def __str__(self):
         return f"Bounds: {self.lower} - {self.upper}"
 
-
-   
