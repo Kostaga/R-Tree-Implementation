@@ -1,4 +1,4 @@
-from record import Record
+from Record import Record
 import numpy as np
 
 class Bounds:

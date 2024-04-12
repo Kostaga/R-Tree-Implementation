@@ -1,5 +1,5 @@
-from bounds import Bounds
-from record import Record
+from Bounds import Bounds
+from Record import Record
 import numpy as np
 
 class BoundingArea:
