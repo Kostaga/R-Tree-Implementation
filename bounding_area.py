@@ -1,11 +1,14 @@
-from bounds import Bounds
-from record import Record
+from Bounds import Bounds
+from Record import Record
+from Block import Block
 import numpy as np
+from copy import deepcopy
+
 
 class BoundingArea:
-    def __init__(self, bounds: list[Bounds]):
+    def __init__(self, bounds: list[Bounds], next_block: Block):
         self.bounds = bounds
-
+        self.next_block = next_block
         self.area = self.calculate_area()
         self.margin = self.calculate_margin()
 
@@ -66,6 +69,21 @@ class BoundingArea:
         # Calculate the distance between the clamped point and the given point
         distance = np.sqrt(np.sum(np.square(np.subtract(clamped_point, point))))
         return distance
+
+
+    def add_point(self, record: Record):
+        #recaculate the bounds of the bounding area to include the record
+        #recalculate the area and margin of the bounding area
+        pass
+
+
+    def calculate_area_enlargement(self, record: Record):
+        '''
+        Calculate the area enlargement if the bounding area is expanded to include the record
+        '''
+        copy_mbr = deepcopy(self)
+        copy_mbr.add_point(record)
+        return copy_mbr.area - self.area
 
     
     @staticmethod
