@@ -1,6 +1,6 @@
-from Record import Record
-from Block import Block
-from Bounding_area import BoundingArea
+from record import Record
+from block import Block
+from bounding_area import BoundingArea
 
 
 class RTree():
@@ -59,7 +59,7 @@ class RTree():
 			best_mbr = None
 			for mbr in current_node.elements:
 				area_enlargement = mbr.calculate_area_enlargement(record)
-				if area_enlargement < min_area_enlargement:
+				if area_enlargement < min_area_enlargement or (area_enlargement == min_area_enlargement and best_mbr.area > mbr.area):
 					min_area_enlargement = area_enlargement
 					best_mbr = mbr
 			
@@ -67,10 +67,11 @@ class RTree():
 
 		# Current node has child pointers that point to leaves
 		# Determine minimum area enlargement
-		# min_overlap_cost = float('inf')
-		# PASS
+		
+		best_mbr = current_node.calculate_least_overlap_enlargement(record)
+		chosen_leaf = best_mbr.next_block
 
-		return current_node
+		return chosen_leaf
 				
 	
 	def overflowTreatment(self,level: int):
