@@ -1,4 +1,4 @@
-from Record import Record
+from record import Record
 
 class Bounds:
     def __init__(self, lower, upper):
