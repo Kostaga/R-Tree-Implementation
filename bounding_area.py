@@ -1,6 +1,6 @@
-from Bounds import Bounds
-from Record import Record
-from Block import Block
+from bounds import Bounds
+from record import Record
+from block import Block
 import numpy as np
 from copy import deepcopy
 
@@ -42,12 +42,19 @@ class BoundingArea:
     
     def area_overlap(self, other: 'BoundingArea'):
         '''
-        Check if two bounding areas overlap
+        Calculate the overlap between two bounding areas
         '''
         for i, bound in enumerate(self.bounds):
             if bound.lower > other.bounds[i].upper or bound.upper < other.bounds[i].lower:
-                return False
-        return True
+                return 0
+
+        overlap = 1
+        for i, bound in enumerate(self.bounds):
+            overlap *= min(bound.upper, other.bounds[i].upper) - max(bound.lower, other.bounds[i].lower)
+        
+        return overlap
+
+        
     
     def min_dist_from_point(self, point: tuple):
         '''
