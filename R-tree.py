@@ -4,11 +4,10 @@ from bounding_area import BoundingArea
 
 
 class RTree():
-
+	
 	def __init__(self):
 		self.blocks = []
 		self.root = None
-		self.levels = [True for i in levels]
 	
 
 	def insert(self, record: Record):
@@ -79,8 +78,8 @@ class RTree():
 		# call of OverflowTreatment m the given level
 		# durmg the Insertion of one data rectangle, then
 		# invoke Reinsert
-  		if level != 1:
 			# Reinsert()
+		if level != 1:
 			pass
 		else:
 			# SplitNode()
