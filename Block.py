@@ -5,6 +5,8 @@ import variables
 class Block:
 	max: int = (variables.BLOCKSIZE // variables.RECORDSIZE)
 	min: int = variables.M * max
+
+	level_overflow: set = set() # keep track of levels that have been overflowed
 	
 	# Intialize Block object, with blockID and empty elements list
 	def __init__(self, isLeaf: bool, levels: int):

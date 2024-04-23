@@ -19,13 +19,14 @@ class RTree():
 			self.root = Block(isLeaf=True, levels=1)
 			self.root.insert(record)
 			return
+	
+		reInsertFlag: bool = False
 		
 		# I1 Invoke ChooseSubtree. with the level as a parameter,
 		# to find an appropriate node N, m which to place the
 		# new entry E
 		leaf: Block = self.chooseSubtree(record)
-		overflowFlag = False
-
+		
 
 		if not leaf.is_full():
 			# If N has less than M entries, accommodate E in N
@@ -33,9 +34,27 @@ class RTree():
 			
 		else:
 			# If N has M entries, invoke OverflowTreatment
-			overflowFlag = True
-			self.overflowTreatment(leaf,leaf.levels,record)
+			reInsertFlag = self.overflowTreatment(leaf.levels)
+
+			if (reInsertFlag): # If boolean variable is true, invoke reinsert
+				self.reInsert(leaf,record)
 			
+			else: # else, split the node
+				returned_block = self.splitNode(leaf,record)
+				
+				if (returned_block is not None):
+					# If a new block was returned, create a new root
+					self.root = returned_block
+					self.root.levels = self.root.elements[0].next_block.levels + 1
+				
+			
+	
+
+	def reInsert(self, block: Block, record: Record):
+		"""
+		Reinsert the elements in the block.
+		"""
+		pass
 
 	def chooseSubtree(self, record: Record) -> Block:
 		"""
@@ -71,19 +90,30 @@ class RTree():
 		chosen_leaf = best_mbr.next_block
 
 		return chosen_leaf
-				
+
+
+
 	
-	def overflowTreatment(self,level: int):
+	def overflowTreatment(self, block: Block, level: int) -> bool:
 		# OTl If the level 1s not the root level and this IS the first
 		# call of OverflowTreatment m the given level
 		# durmg the Insertion of one data rectangle, then
-		# invoke Reinsert
-			# Reinsert()
 		if level != 1:
-			pass
-		else:
-			# SplitNode()
-			pass
+			# Mark level as already inserted
+			if (block.levels not in block.level_overflow):
+				block.level_overflow.add(level)
+				return True
+
+		return False
+	
+	
+
+	def splitNode(self, block: Block, record: Record):
+		"""
+		Split the node when it overflows.
+		"""
+		pass
+
 		 
 			
 	def delete(self, record: Record):
