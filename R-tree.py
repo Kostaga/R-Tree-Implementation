@@ -1,6 +1,7 @@
 from record import Record
 from block import Block
 from bounding_area import BoundingArea
+import variables
 
 
 class RTree():
@@ -20,7 +21,7 @@ class RTree():
 			self.root.insert(record)
 			return
 	
-		reInsertFlag: bool = False
+		re_insert_flag: bool = False
 		
 		# I1 Invoke ChooseSubtree. with the level as a parameter,
 		# to find an appropriate node N, m which to place the
@@ -34,9 +35,9 @@ class RTree():
 			
 		else:
 			# If N has M entries, invoke OverflowTreatment
-			reInsertFlag = self.overflowTreatment(leaf.levels)
+			re_insert_flag = self.overflowTreatment(leaf.levels)
 
-			if (reInsertFlag): # If boolean variable is true, invoke reinsert
+			if (re_insert_flag): # If boolean variable is true, invoke reinsert
 				self.reInsert(leaf,record)
 			
 			else: # else, split the node
@@ -54,7 +55,35 @@ class RTree():
 		"""
 		Reinsert the elements in the block.
 		"""
-		pass
+
+		# percentage of M to be reinserted
+		p = round(variables.P * variables.M)
+		
+		# RI1 Compute the distance between the centers of their rectangles
+		# and the center of the bounding rectangle of N
+		pairs = []
+		for element in block.elements:
+			# Calculate the center distance (yet to be implemented)
+			distance = element.calculate_center_distance(record)
+			pairs.append((element, distance))
+		
+		# RI2 Sort the entries in decreasing order of their distances
+		pairs.sort(key=lambda x: x[1], reverse=True)
+
+		# RI3 Remove the first p entries from N and adjust the bounding rectangle
+		# of N
+		pairs = pairs[:p]
+
+		
+		# RI4 in the sort defined in RI2, starting with the maximum distance
+		# or minimum distance, invoke insert to reinsert the entries
+  
+			
+		# not yet implemented
+
+
+
+
 
 	def chooseSubtree(self, record: Record) -> Block:
 		"""
