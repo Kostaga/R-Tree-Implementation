@@ -1,6 +1,7 @@
 from record import Record
 from block import Block
 from bounding_area import BoundingArea
+import variables
 
 
 class RTree():
@@ -19,13 +20,14 @@ class RTree():
 			self.root = Block(isLeaf=True, levels=1)
 			self.root.insert(record)
 			return
+	
+		re_insert_flag: bool = False
 		
 		# I1 Invoke ChooseSubtree. with the level as a parameter,
 		# to find an appropriate node N, m which to place the
 		# new entry E
 		leaf: Block = self.chooseSubtree(record)
-		overflowFlag = False
-
+		
 
 		if not leaf.is_full():
 			# If N has less than M entries, accommodate E in N
@@ -33,9 +35,55 @@ class RTree():
 			
 		else:
 			# If N has M entries, invoke OverflowTreatment
-			overflowFlag = True
-			self.overflowTreatment(leaf,leaf.levels,record)
+			re_insert_flag = self.overflowTreatment(leaf.levels)
+
+			if (re_insert_flag): # If boolean variable is true, invoke reinsert
+				self.reInsert(leaf,record)
 			
+			else: # else, split the node
+				returned_block = self.splitNode(leaf,record)
+				
+				if (returned_block is not None):
+					# If a new block was returned, create a new root
+					self.root = returned_block
+					self.root.levels = self.root.elements[0].next_block.levels + 1
+				
+			
+	
+
+	def reInsert(self, block: Block, record: Record):
+		"""
+		Reinsert the elements in the block.
+		"""
+
+		# percentage of M to be reinserted
+		p = round(variables.P * variables.M)
+		
+		# RI1 Compute the distance between the centers of their rectangles
+		# and the center of the bounding rectangle of N
+		pairs = []
+		for element in block.elements:
+			# Calculate the center distance (yet to be implemented)
+			distance = element.calculate_center_distance(record)
+			pairs.append((element, distance))
+		
+		# RI2 Sort the entries in decreasing order of their distances
+		pairs.sort(key=lambda x: x[1], reverse=True)
+
+		# RI3 Remove the first p entries from N and adjust the bounding rectangle
+		# of N
+		pairs = pairs[:p]
+
+		
+		# RI4 in the sort defined in RI2, starting with the maximum distance
+		# or minimum distance, invoke insert to reinsert the entries
+  
+			
+		# not yet implemented
+
+
+
+
 
 	def chooseSubtree(self, record: Record) -> Block:
 		"""
@@ -71,19 +119,30 @@ class RTree():
 		chosen_leaf = best_mbr.next_block
 
 		return chosen_leaf
-				
+
+
+
 	
-	def overflowTreatment(self,level: int):
+	def overflowTreatment(self, block: Block, level: int) -> bool:
 		# OTl If the level 1s not the root level and this IS the first
 		# call of OverflowTreatment m the given level
 		# durmg the Insertion of one data rectangle, then
-		# invoke Reinsert
-			# Reinsert()
 		if level != 1:
-			pass
-		else:
-			# SplitNode()
-			pass
+			# Mark level as already inserted
+			if (block.levels not in block.level_overflow):
+				block.level_overflow.add(level)
+				return True
+
+		return False
+	
+	
+
+	def splitNode(self, block: Block, record: Record):
+		"""
+		Split the node when it overflows.
+		"""
+		pass
+
 		 
 			
 	def delete(self, record: Record):
