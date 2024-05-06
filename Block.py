@@ -9,10 +9,10 @@ class Block:
 	level_overflow: set = set() # keep track of levels that have been overflowed
 	
 	# Intialize Block object, with blockID and empty elements list
-	def __init__(self, isLeaf: bool, levels: int):
+	def __init__(self, is_leaf: bool, levels: int):
 		# self.blockID: int = blockID
 		self.elements: list = [] # List of MBRs/elements # Percentage of M
-		self.isLeaf: bool = isLeaf
+		self.is_leaf: bool = is_leaf
 		self.levels: int = levels
 
 	# Insert a record to the block
@@ -34,7 +34,7 @@ class Block:
 		"""
 		:return: True if the block is full, False otherwise
 		"""
-		return len(self.elements) == self.max
+		return len(self.elements) == Block.max
 		
 
 	# Return the number of elements in the block
