@@ -17,7 +17,7 @@ class RTree():
 		:return: None
 		"""
 		if (self.root == None):
-			self.root = Block(isLeaf=True, levels=1)
+			self.root = Block(is_leaf=True, levels=1)
 			self.root.insert(record)
 			return
 	
@@ -93,14 +93,14 @@ class RTree():
 		#CS1 Let N be the root
 		current_node: Block = self.root
 		#CS2 If N 1s a leaf, return N 
-		if (current_node.isLeaf):
+		if (current_node.is_leaf):
 			return current_node
 		
 		# else
 		# if the childpointers in N point to leaves, determine minimum overlap cost
 		
 		# Determine minimum overlap cost
-		while not current_node.elements[0].next_block.isLeaf:
+		while not current_node.elements[0].next_block.is_leaf:
 			# CS3 Choose the entry E from N that needs least area enlargement to include R
 			min_area_enlargement = float('inf')
 			best_mbr = None

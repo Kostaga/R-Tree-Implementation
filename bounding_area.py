@@ -98,9 +98,9 @@ class BoundingArea:
         '''
         Find the bounds of a list of records
         '''
-        records = np.array([record.location for record in records])  # Convert the list of records to a numpy array for min/max to work
-        min_values = np.min(records, axis=0)  # Find the minimum values in each dimension
-        max_values = np.max(records, axis=0)  # Find the maximum values in each dimension
+        records_arr = np.array([record.location for record in records])  # Convert the list of records to a numpy array for min/max to work
+        min_values = np.min(records_arr, axis=0)  # Find the minimum values in each dimension
+        max_values = np.max(records_arr, axis=0)  # Find the maximum values in each dimension
 
         bounds = [Bounds(min_values[i], max_values[i]) for i in range(len(min_values))]
         return bounds
@@ -118,6 +118,10 @@ class BoundingArea:
             new_bounds.append(Bounds(min_values, max_values))
     
         return new_bounds
+    
+
+    def __str__(self) -> str:
+        return f"BB: {', '.join([f"{i+1}. {str(bound)}" for i, bound in enumerate(self.bounds)])}"
     
     
     

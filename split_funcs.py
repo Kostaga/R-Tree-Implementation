@@ -4,17 +4,17 @@ from record import Record
 import variables as var
 
 
-def distribution_generator(lista: list):  # assumes the block is overflowed and has M+1 records (!!!!!!!!!)
+def distribution_generator(lista: list):  # assumes the list/block is overflowed and has M+1 records (!!!!!!!!!)
     # lista is a list of records or a list of mbrs
-    # Generator that yields all the M-2m+2 distributions of the block
+    # Generator that yields all the M-2m+2 distributions of the llist
 
     # Initialize the distribution
     first_half = []
     second_half = []
     # Iterate over the elements in the block
-    min = var.MIN_ELEMENTS
-    max = var.MAX_ELEMENTS
-    index = min  # index to split the list
+    min = (var.MIN_ELEMENTS)
+    max = (var.MAX_ELEMENTS)
+    index = min  # index to split the list -- int because var has float type
     # first_half = block.elements[:index]
     # second_half = block.elements[index:]
     
@@ -26,10 +26,11 @@ def distribution_generator(lista: list):  # assumes the block is overflowed and 
         yield first_half, second_half
     
         # Update the first half
-        first_half.append(lista.elements[index])
+        # first_half.append(lista[index])  # απιστευτο bug εδω
+        first_half = lista[:index + 1]
 
         # Update the second half
-        second_half = lista.elements[index + 1:]
+        second_half = lista[index + 1:]
 
         index += 1
 
@@ -73,7 +74,7 @@ def choose_split_axis_leaf(block: Block):
     for dim in range(var.DIMENSIONS):
         # Compute S for each dimension --> sum of all margin-values of the different distributions for each dimension
         # margin-value = margin[bb(first group)] + margin[bb(second group)]
-        for dist in distribution_generator(sorted_records):
+        for dist in distribution_generator(sorted_records[dim]):
             # dist : tuple of two lists of records
             # Compute the bounding box of the first group
             first_group = BoundingArea(BoundingArea.find_bounds_of_records(dist[0]), None) 
@@ -105,9 +106,9 @@ def choose_split_axis_non_leaf(block: Block):
         for dist in distribution_generator(sorted_mbrs_lower[dim]):
             # dist : tuple of two lists of records
             # Compute the bounding box of the first group
-            first_group = BoundingArea(BoundingArea.find_bounds_of_records(dist[0]), None) 
+            first_group = BoundingArea(BoundingArea.find_bounds_of_areas(dist[0]), None) 
             # Compute the bounding box of the second group
-            second_group = BoundingArea(BoundingArea.find_bounds_of_records(dist[1]), None) 
+            second_group = BoundingArea(BoundingArea.find_bounds_of_areas(dist[1]), None) 
             # Compute the margin-value of the bounding boxes
             margin_value = first_group.margin + second_group.margin
             # Update the sum of the margins
@@ -115,11 +116,15 @@ def choose_split_axis_non_leaf(block: Block):
 
         # Repeat for the upper bounds
         for dist in distribution_generator(sorted_mbrs_upper[dim]):
-            first_group = BoundingArea(BoundingArea.find_bounds_of_records(dist[0]), None) 
-            second_group = BoundingArea(BoundingArea.find_bounds_of_records(dist[1]), None) 
+            first_group = BoundingArea(BoundingArea.find_bounds_of_areas(dist[0]), None) 
+            second_group = BoundingArea(BoundingArea.find_bounds_of_areas(dist[1]), None) 
             margin_value = first_group.margin + second_group.margin
-            margin_sums_lower[dim] += margin_value
+            margin_sums_upper[dim] += margin_value
             
+    # Testing prints
+    # print("margin_sums_lower: ", margin_sums_lower)
+    # print("margin_sums_upper: ", margin_sums_upper) 
+
     # Choose the dimension with the smallest margin sum
     index_lower = margin_sums_lower.index(min(margin_sums_lower))
     index_upper = margin_sums_upper.index(min(margin_sums_upper))
@@ -128,7 +133,7 @@ def choose_split_axis_non_leaf(block: Block):
         split_axis = index_lower
     else:   
         split_axis = index_upper
-    return split_axis  # --> integer --> dimension index
+    return split_axis  # --> integer --> dimension with lower margin sum (lower or upper bounds)
 
 
 def choose_split_index_leaf(split_axis: int, block: Block):
@@ -140,12 +145,12 @@ def choose_split_index_leaf(split_axis: int, block: Block):
         raise ValueError("The block is not a leaf block")
     
     # Sort the elements of the block by the split axis
-    sorted_block = sorted(block.elements, key=lambda x: x.location[split_axis])
-    # Find the index to split the block
+    sorted_block_elements = sorted(block.elements, key=lambda x: x.location[split_axis])
+    # Find the best distribution in which to split the block
     min_overlap_value = float('inf')
     min_area_value = float('inf')  # to resolve ties of min overlap
     best_distribution = None
-    for dist in distribution_generator(block):
+    for dist in distribution_generator(sorted_block_elements):
         # dist : tuple of two lists of records
         # Compute the bounding box of the first group
         first_group = BoundingArea(BoundingArea.find_bounds_of_records(dist[0]), None)
@@ -191,6 +196,7 @@ def choose_split_index_non_leaf(split_axis: int, block: Block):
         second_group = BoundingArea(BoundingArea.find_bounds_of_areas(dist[1]), None)
         # Compute the overlap between the bounding boxes
         overlap_value = first_group.area_overlap(second_group)
+        # print("overlap_value (lower sorting): ", overlap_value)
 
         if overlap_value < min_overlap_value:
             # new best distribution
@@ -213,6 +219,7 @@ def choose_split_index_non_leaf(split_axis: int, block: Block):
         second_group = BoundingArea(BoundingArea.find_bounds_of_areas(dist[1]), None)
         # Compute the overlap between the bounding boxes
         overlap_value = first_group.area_overlap(second_group)
+        # print("overlap_value (upper sorting): ", overlap_value)
 
         if overlap_value < min_overlap_value:
             # new best distribution
@@ -226,6 +233,28 @@ def choose_split_index_non_leaf(split_axis: int, block: Block):
                 min_area_value = area_value
                 best_distribution = dist
     return best_distribution  # tuple[list[Record], list[Record]]
+
+
+def print_dist_recs(dist):
+    print("First half:")
+    for rec in dist[0]:
+        print(rec)
+    print("Second half:")
+    for rec in dist[1]:
+        print(rec)
+    print("\n")
+    print("\n")
+
+def print_dist_mbrs(dist):
+    print("First half:")
+    for mbr in dist[0]:
+        print(mbr)
+    print("Second half:")
+    for mbr in dist[1]:
+        print(mbr)
+    print("\n")
+    print("\n")
+
 
 if __name__ == '__main__':
     pass

@@ -23,4 +23,4 @@ class Record:
   
   # Για να μπορούμε να κάνουμε print τα Records
   def __str__(self):
-      return f"Record id: {self.id}, location: {self.location}, recID: {self.recID}"
+      return f"Id: {self.id}, Location: {self.location}, recID: {self.recID}"

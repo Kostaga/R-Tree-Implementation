@@ -16,7 +16,7 @@ class Block:
 		self.levels: int = levels
 
 	# Insert a record to the block
-	def insert(self, record: Record) -> None:
+	def insert(self, record: Record) -> bool:
 		"""""
 		:param record: Record object to insert
 		:return: None
@@ -26,7 +26,12 @@ class Block:
 			# Insert the record toBlock block
 			self.elements.append(record)
 		else:
+			self.elements.append(record)
+			# block gets overflowed so the split functions work properly and an exception is raised that is to 
+			# be dealt with elsewhere with try: ... except ValueError: ...
 			raise ValueError("Block is full")
+		
+		
 		
 	
 	# Check if the block is full
@@ -43,4 +48,7 @@ class Block:
 	
 
 	def __str__(self):
-		return f"Block {self.blockID}: {len(self.elements)} elements"
+		final_str = ""
+		for element in self.elements:
+			final_str += str(element) + "\n"
+		return final_str
