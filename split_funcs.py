@@ -14,7 +14,7 @@ def distribution_generator(lista: list):  # assumes the list/block is overflowed
     # Iterate over the elements in the block
     min = (var.MIN_ELEMENTS)
     max = (var.MAX_ELEMENTS)
-    index = min  # index to split the list -- int because var has float type
+    index = min  # index to split the list
     # first_half = block.elements[:index]
     # second_half = block.elements[index:]
     
@@ -120,7 +120,7 @@ def choose_split_axis_non_leaf(block: Block):
             second_group = BoundingArea(BoundingArea.find_bounds_of_areas(dist[1]), None) 
             margin_value = first_group.margin + second_group.margin
             margin_sums_upper[dim] += margin_value
-            
+
     # Testing prints
     # print("margin_sums_lower: ", margin_sums_lower)
     # print("margin_sums_upper: ", margin_sums_upper) 
@@ -243,7 +243,7 @@ def print_dist_recs(dist):
     for rec in dist[1]:
         print(rec)
     print("\n")
-    print("\n")
+   
 
 def print_dist_mbrs(dist):
     print("First half:")
@@ -253,7 +253,7 @@ def print_dist_mbrs(dist):
     for mbr in dist[1]:
         print(mbr)
     print("\n")
-    print("\n")
+
 
 
 if __name__ == '__main__':

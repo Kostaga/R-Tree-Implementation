@@ -16,7 +16,7 @@ class Block:
 		self.levels: int = levels
 
 	# Insert a record to the block
-	def insert(self, record: Record) -> bool:
+	def insert(self, record: Record):
 		"""""
 		:param record: Record object to insert
 		:return: None

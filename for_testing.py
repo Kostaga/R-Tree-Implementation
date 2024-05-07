@@ -118,12 +118,10 @@ if __name__ == '__main__':
     # new_node.insert(area1)
     # new_node.insert(area2)
 
-    # print(new_node.elements[0])
-    # print(new_node.elements[1])
+    # print(new_node)
 
     # print("\nElements of leaf that is pointed by the first area:")
-    # for rec in new_node.elements[0].next_block.elements:
-    #     print(rec)
+    # print(new_node.elements[0].next_block)
 
     # Δοκιμή πρακτικής για διασπαση node-block
     new_node1 = Block(False, 0)
@@ -141,6 +139,9 @@ if __name__ == '__main__':
     new_node.insert(area1)
     new_node.insert(area2)
 
+    print("Parent block:\n" , new_node)
+    print("Child 1:\n", new_node.elements[0].next_block)
+    print("Child 2:\n", new_node.elements[1].next_block)
 
 
 
