@@ -3,9 +3,11 @@ from record import Record
 from bounds import Bounds
 from block import Block
 import split_funcs as sf
+import area_overlap as avp
 from R_tree import RTree
 
 from random import shuffle
+from copy import deepcopy
 
 
 if __name__ == '__main__':
@@ -26,8 +28,20 @@ if __name__ == '__main__':
     area5 = BoundingArea([Bounds(9.0, 11.0), Bounds(10.0, 14.0)], None)
     area6 = BoundingArea([Bounds(-5.0, 3.0), Bounds(3.0, 4.0)], None)
 
-    areas = [area1, area2, area3, area4, area5, area6]
-    shuffle(areas)
+    areas = [area1, area2, area3]
+    # shuffle(areas)
+
+    # TESTING include_point
+    # print(area1)
+    # area1.include_point(record1)
+    # print("Added:" , record1)
+    # print(area1)
+    # area1.include_point(record4)
+    # print("Added:" , record4)
+    # print(area1)
+    # area1.include_point(record6)
+    # print("Added:" , record6)
+    # print(area1)
 
 
     
@@ -44,12 +58,16 @@ if __name__ == '__main__':
     for area in areas:
         try:
             block.insert(area)
-        except ValueError:
+        except OverflowError:
             print("Block is full")
             print("Initiating split...")
 
     
-
+    # AREA OVERLAP TESTING - IT WORKS
+    # copy = deepcopy(area1)
+    print(avp.calculate_overlap_area(block, block.elements[0]))  # assuming that area1 is the first element of the block
+    print(avp.calculate_overlap_enlargement(block, block.elements[0], Record(7, (11.0, 12.0), 1)))
+    print(avp.calculate_least_overlap_enlargement(block, Record(7, (11.0, 12.0), 1)))
     
 
     # DISTRIBUTION GENERATOR TESTING
@@ -62,9 +80,9 @@ if __name__ == '__main__':
     #         print(rec)
 
 
-    # SPLIT FUNCTIONS TESTING
+    # SPLIT FUNCTIONS TESTING - EVERYTHING WORKS
     
-    # Sorting all dimensions
+    # Sorting all dimensions - IT WORKS
 
     # Records
     # sorted_dimensions: list = sf.sort_all_dimensions_leaf(block)
@@ -88,7 +106,7 @@ if __name__ == '__main__':
     #         print(mbr)
         
 
-    # ChooseSplitAxis
+    # ChooseSplitAxis - IT WORKS
 
     # Records
     # split_axis = sf.choose_split_axis_leaf(block)
@@ -97,10 +115,10 @@ if __name__ == '__main__':
     # sf.print_dist_recs(splits)
 
     # MBRs
-    split_axis = sf.choose_split_axis_non_leaf(block)
-    splits = sf.choose_split_index_non_leaf(split_axis, block)
-    print(f"Split axis: {split_axis}")
-    sf.print_dist_mbrs(splits)
+    # split_axis = sf.choose_split_axis_non_leaf(block)
+    # splits = sf.choose_split_index_non_leaf(split_axis, block)
+    # print(f"Split axis: {split_axis}")
+    # sf.print_dist_mbrs(splits)
 
     # Δοκιμή πρακτικής για διασπαση leaf-block
     # new_leaf1 = Block(True, 0)
@@ -124,28 +142,29 @@ if __name__ == '__main__':
     # print(new_node.elements[0].next_block)
 
     # Δοκιμή πρακτικής για διασπαση node-block
-    new_node1 = Block(False, 0)
-    new_node1.elements = splits[0]
-    new_node2 = Block(False, 0)
-    new_node2.elements = splits[1]
+    # new_node1 = Block(False, 0)
+    # new_node1.elements = splits[0]
+    # new_node2 = Block(False, 0)
+    # new_node2.elements = splits[1]
 
-    bounds1 = BoundingArea.find_bounds_of_areas(splits[0])
-    area1 = BoundingArea(bounds1, new_node1)
+    # bounds1 = BoundingArea.find_bounds_of_areas(splits[0])
+    # area1 = BoundingArea(bounds1, new_node1)
 
-    bounds2 = BoundingArea.find_bounds_of_areas(splits[1])
-    area2 = BoundingArea(bounds2, new_node2)
+    # bounds2 = BoundingArea.find_bounds_of_areas(splits[1])
+    # area2 = BoundingArea(bounds2, new_node2)
 
-    new_node = Block(False, 0)
-    new_node.insert(area1)
-    new_node.insert(area2)
+    # new_node = Block(False, 0)
+    # new_node.insert(area1)
+    # new_node.insert(area2)
 
-    print("Parent block:\n" , new_node)
-    print("Child 1:\n", new_node.elements[0].next_block)
-    print("Child 2:\n", new_node.elements[1].next_block)
+    # print("Parent block:\n" , new_node)
+    # print("Child 1:\n", new_node.elements[0].next_block)
+    # print("Child 2:\n", new_node.elements[1].next_block)
 
 
 
-    # # TESTING BOUNDING AREA
+    # # TESTING BOUNDING AREA - IT WORKS
+
     # bound1 = Bounds(5, 10)
     # bound2 = Bounds(0, 10)
     # area1 = BoundingArea([bound1, bound2], None)

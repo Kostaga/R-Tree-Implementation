@@ -78,18 +78,24 @@ class BoundingArea:
         return distance
 
 
-    def add_point(self, record: Record):
-        #recaculate the bounds of the bounding area to include the record
-        #recalculate the area and margin of the bounding area
-        pass
+    def include_point(self, record: Record) -> None:
+        # Recaculate the bounds of the bounding area to include the record
+        for dim, bound in enumerate(self.bounds):
+            # dim --> dimension
+            bound.lower = min(self.bounds[dim].lower, record.location[dim])
+            bound.upper = max(self.bounds[dim].upper, record.location[dim])
+
+        # Recalculate the area and margin of the bounding area
+        self.area = self.calculate_area()
+        self.margin = self.calculate_margin()
 
 
-    def calculate_area_enlargement(self, record: Record):
+    def calculate_area_enlargement(self, record: Record) -> float:
         '''
         Calculate the area enlargement if the bounding area is expanded to include the record
         '''
         copy_mbr = deepcopy(self)
-        copy_mbr.add_point(record)
+        copy_mbr.include_point(record)
         return copy_mbr.area - self.area
 
     

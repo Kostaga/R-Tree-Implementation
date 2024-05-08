@@ -29,7 +29,7 @@ class Block:
 			self.elements.append(record)
 			# block gets overflowed so the split functions work properly and an exception is raised that is to 
 			# be dealt with elsewhere with try: ... except ValueError: ...
-			raise ValueError("Block is full")
+			raise OverflowError("Block is full")
 		
 		
 		
