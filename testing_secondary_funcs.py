@@ -54,20 +54,20 @@ if __name__ == '__main__':
     #         print("Block is full")
     #         print("Initiating split...")
 
-    block = Block(False, 0)
-    for area in areas:
-        try:
-            block.insert(area)
-        except OverflowError:
-            print("Block is full")
-            print("Initiating split...")
+    # block = Block(False, 0)
+    # for area in areas:
+    #     try:
+    #         block.insert(area)
+    #     except OverflowError:
+    #         print("Block is full")
+    #         print("Initiating split...")
 
     
     # AREA OVERLAP TESTING - IT WORKS
     # copy = deepcopy(area1)
-    print(avp.calculate_overlap_area(block, block.elements[0]))  # assuming that area1 is the first element of the block
-    print(avp.calculate_overlap_enlargement(block, block.elements[0], Record(7, (11.0, 12.0), 1)))
-    print(avp.calculate_least_overlap_enlargement(block, Record(7, (11.0, 12.0), 1)))
+    # print(avp.calculate_overlap_area(block, block.elements[0]))  # assuming that area1 is the first element of the block
+    # print(avp.calculate_overlap_enlargement(block, block.elements[0], Record(7, (11.0, 12.0), 1)))
+    # print(avp.calculate_least_overlap_enlargement(block, Record(7, (11.0, 12.0), 1)))
     
 
     # DISTRIBUTION GENERATOR TESTING
