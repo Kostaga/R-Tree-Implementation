@@ -78,18 +78,24 @@ class BoundingArea:
         return distance
 
 
-    def add_point(self, record: Record):
-        #recaculate the bounds of the bounding area to include the record
-        #recalculate the area and margin of the bounding area
-        pass
+    def include_point(self, record: Record) -> None:
+        # Recaculate the bounds of the bounding area to include the record
+        for dim, bound in enumerate(self.bounds):
+            # dim --> dimension
+            bound.lower = min(self.bounds[dim].lower, record.location[dim])
+            bound.upper = max(self.bounds[dim].upper, record.location[dim])
+
+        # Recalculate the area and margin of the bounding area
+        self.area = self.calculate_area()
+        self.margin = self.calculate_margin()
 
 
-    def calculate_area_enlargement(self, record: Record):
+    def calculate_area_enlargement(self, record: Record) -> float:
         '''
         Calculate the area enlargement if the bounding area is expanded to include the record
         '''
         copy_mbr = deepcopy(self)
-        copy_mbr.add_point(record)
+        copy_mbr.include_point(record)
         return copy_mbr.area - self.area
 
     
@@ -98,9 +104,9 @@ class BoundingArea:
         '''
         Find the bounds of a list of records
         '''
-        records = np.array([record.location for record in records])  # Convert the list of records to a numpy array for min/max to work
-        min_values = np.min(records, axis=0)  # Find the minimum values in each dimension
-        max_values = np.max(records, axis=0)  # Find the maximum values in each dimension
+        records_arr = np.array([record.location for record in records])  # Convert the list of records to a numpy array for min/max to work
+        min_values = np.min(records_arr, axis=0)  # Find the minimum values in each dimension
+        max_values = np.max(records_arr, axis=0)  # Find the maximum values in each dimension
 
         bounds = [Bounds(min_values[i], max_values[i]) for i in range(len(min_values))]
         return bounds
@@ -118,6 +124,10 @@ class BoundingArea:
             new_bounds.append(Bounds(min_values, max_values))
     
         return new_bounds
+    
+
+    def __str__(self) -> str:
+        return f"BB: {', '.join([f"{i+1}. {str(bound)}" for i, bound in enumerate(self.bounds)])}"
     
     
     
