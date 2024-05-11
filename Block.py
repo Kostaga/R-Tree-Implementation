@@ -9,12 +9,19 @@ class Block:
 	level_overflow: set = set() # keep track of levels that have been overflowed
 	
 	# Intialize Block object, with blockID and empty elements list
-	def __init__(self, is_leaf: bool, parent_mbr, level: int):  # parent_mbr is the boundingArea that points to this block of elements
-		# self.blockID: int = blockID
+	def __init__(self, is_leaf: bool, parent_mbr):  # parent_mbr is the boundingArea that points to this block of elements
 		self.elements: list = [] # List of MBRs/elements # Percentage of M
 		self.is_leaf: bool = is_leaf
 		self.parent_mbr = parent_mbr  # mbr that has a pointer next_block to this block
-		self.level: int = level  # level of the block in the tree
+
+
+	def get_level(self):
+		level = 0
+		current_block = self
+		while(current_block.parent_mbr != None):  # root has no parent_mbr - so root has level 0
+			current_block = current_block.parent_mbr
+			level += 1
+		return level
 
 	# Insert a record to the block
 	def insert(self, record: Record):
