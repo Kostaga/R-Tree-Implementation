@@ -4,7 +4,7 @@ import variables
 
 class Block:
 	max: int = (variables.BLOCKSIZE // variables.RECORDSIZE)
-	min: int = variables.M * max
+	min: int = int(variables.M * max)
 
 	level_overflow: set = set() # keep track of levels that have been overflowed
 	
