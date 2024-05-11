@@ -9,11 +9,12 @@ class Block:
 	level_overflow: set = set() # keep track of levels that have been overflowed
 	
 	# Intialize Block object, with blockID and empty elements list
-	def __init__(self, is_leaf: bool, levels: int):
+	def __init__(self, is_leaf: bool, parent_mbr, level: int):  # parent_mbr is the boundingArea that points to this block of elements
 		# self.blockID: int = blockID
 		self.elements: list = [] # List of MBRs/elements # Percentage of M
 		self.is_leaf: bool = is_leaf
-		self.levels: int = levels
+		self.parent_mbr = parent_mbr  # mbr that has a pointer next_block to this block
+		self.level: int = level  # level of the block in the tree
 
 	# Insert a record to the block
 	def insert(self, record: Record):
@@ -29,8 +30,7 @@ class Block:
 			self.elements.append(record)
 			# block gets overflowed so the split functions work properly and an exception is raised that is to 
 			# be dealt with elsewhere with try: ... except OverflowError: ...
-			raise OverflowError("Block is full")
-		
+			raise OverflowError("Block is full")	
 		
 		
 	

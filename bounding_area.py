@@ -97,8 +97,35 @@ class BoundingArea:
         copy_mbr = deepcopy(self)
         copy_mbr.include_point(record)
         return copy_mbr.area - self.area
+        
 
-    
+    def calculate_center(self):
+        '''
+        Calculate the center of the bounding area
+        '''
+        center = []
+        for bound in self.bounds:
+            center.append((bound.lower + bound.upper) / 2)
+        return center
+        
+
+    def calculate_center_distance_leaf(self, record: Record):  # self is parent mbr, other is child record
+        '''
+        Calculate the distance between the center of the bounding area and the record
+        '''
+        center = self.calculate_center()
+        return np.sqrt(np.sum(np.square(np.subtract(center, record.location))))
+
+
+    def calculate_center_distance_non_leaf(self, other: 'BoundingArea'):  # self is parent mbr, other is child mbr
+        '''
+        Calculate the distance between the centers of two bounding areas
+        '''
+        center_self = self.calculate_center()
+        center_other = other.calculate_center()
+        return np.sqrt(np.sum(np.square(np.subtract(center_self, center_other))))
+
+
     @staticmethod
     def find_bounds_of_records(records: list[Record]):
         '''
