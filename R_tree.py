@@ -1,5 +1,5 @@
 from record import Record
-from Block import Block
+from block import Block
 from bounding_area import BoundingArea
 import variables
 import area_overlap as avp
@@ -21,7 +21,7 @@ class RTree():
 		:return: None
 		"""
 		if (self.root == None):
-			self.root = Block(is_leaf=True, levels=1)
+			self.root = Block(is_leaf=True, parent_mbr=None)
 			self.root.insert(record)
 			return
 	
@@ -38,18 +38,18 @@ class RTree():
 			leaf.insert(record)
 		except OverflowError:
 			# If N has M entries, invoke OverflowTreatment
-			re_insert_flag = self.overflowTreatment(leaf, leaf.level)
+			re_insert_flag = self.overflowTreatment(leaf.get_level())
 
 			if (re_insert_flag): # If boolean variable is true, invoke reinsert
 				self.reInsert(leaf, record)
 			
 			else: # else, split the node
-				new_blocks = self.splitNode(leaf, record)  # tuple of the two new blocks
+				new_blocks = self.split_leaf(leaf, record)  # tuple of the two new blocks
 
 				if (new_blocks is not None):
 					# If a new block was returned, create a new root
 					self.root = new_blocks
-					self.root.level = self.root.elements[0].next_block.level + 1
+					# self.root.level = self.root.elements[0].next_block.level + 1
 				
 			
 	
@@ -128,20 +128,20 @@ class RTree():
 		return chosen_leaf
 
 
-	def overflowTreatment(self, block: Block, level: int) -> bool:
+	def overflowTreatment(self, level: int) -> bool:
 		# OTl If the level 1s not the root level and this IS the first
 		# call of OverflowTreatment m the given level
 		# durmg the Insertion of one data rectangle, then
 		if level != 0:  # if the level is not the root level --> level 0
 			# Mark level as already inserted
-			if (block.level not in block.level_overflow):
-				block.level_overflow.add(level)
+			if (level not in Block.level_overflow):
+				Block.level_overflow.add(level)
 				return True
 		return False
 	
 	
 
-	def splitNode(self, block: Block, record: Record):
+	def split_leaf(self, block: Block, record: Record):
 		"""
 		Split the node when it overflows.
 		"""
