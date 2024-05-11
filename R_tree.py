@@ -46,10 +46,13 @@ class RTree():
 			else: # else, split the node
 				new_blocks = self.split_leaf(leaf, record)  # tuple of the two new blocks
 
-				if (new_blocks is not None):
+				if (new_blocks[0] != None):
 					# If a new block was returned, create a new root
 					self.root = new_blocks
 					# self.root.level = self.root.elements[0].next_block.level + 1
+		
+		
+		Block.level_overflow.clear()  # clear the set of levels that have been overflowed
 				
 			
 	
@@ -63,22 +66,52 @@ class RTree():
 
 		# percentage of M to be reinserted
 		p = round(variables.P * variables.M)
-		
-		# RI1 Compute the distance between the centers of their rectangles
-		# and the center of the bounding rectangle of N
-		pairs = []
-		for element in block.elements:
-			# Calculate the center distance (yet to be implemented)
-			distance = element.calculate_center_distance(record)
-			pairs.append((element, distance))
-		
-		# RI2 Sort the entries in decreasing order of their distances
-		pairs.sort(key=lambda x: x[1], reverse=True)
 
-		# RI3 Remove the first p entries from N and adjust the bounding rectangle
-		# of N
-		pairs = pairs[:p]
+		if (not block.is_leaf):
+			# RI1 Compute the distance between the centers of their rectangles
+			# and the center of the bounding rectangle of N
+			pairs = []
+			for element in block.elements:
+				distance = element.calculate_center_distance_non_leaf(block.parent_mbr) # calculate the distance between the center of the element and the center of the parent mbr
+				pairs.append((element, distance))
+			
+			# RI2 Sort the entries in decreasing order of their distances
+			pairs.sort(key=lambda x: x[1], reverse=True)
 
+			# RI3 Remove the first p entries from N 
+			removed_entries = pairs[:p] # remove the first p entries
+			# adjust the bounding rectangle of N
+			new_mbr = BoundingArea.find_bounds_of_areas(pairs[p:]) # adjust the bounds of the remaining entries
+			block.parent_mbr.bounds = new_mbr # adjust the bounds of the parent mbr
+
+			for entry in removed_entries:
+				block.elements.remove(entry[0]) # remove the entries from the block
+				self.insert(entry[0]) # reinsert the entries
+
+
+
+		else:
+			# RI1 Compute the distance between the center of the rectangle and the center of the bounding rectangle of N
+			pairs = []
+			for element in block.elements:
+				distance = element.calculate_center_distance_leaf(record) # calculate the distance between the center of the element and the center of the parent mbr
+				pairs.append((element, distance))
+			
+			pairs.sort(key=lambda x: x[1], reverse=True)
+
+			# RI3 Remove the first p entries from N
+			removed_entries = pairs[:p]
+			# adjust the bounding rectangle of N
+			new_mbr = BoundingArea.find_bounds_of_records(pairs[p:])
+			block.parent_mbr.bounds = new_mbr
+
+			for entry in removed_entries:
+				block.elements.remove(entry[0])
+				self.insert(entry[0])
+			
+		
+
+		
 		
 		# RI4 in the sort defined in RI2, starting with the maximum distance
 		# or minimum distance, invoke insert to reinsert the entries

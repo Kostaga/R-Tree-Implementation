@@ -88,6 +88,8 @@ class BoundingArea:
         # Recalculate the area and margin of the bounding area
         self.area = self.calculate_area()
         self.margin = self.calculate_margin()
+       
+    
 
 
     def calculate_area_enlargement(self, record: Record) -> float:
