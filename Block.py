@@ -37,7 +37,19 @@ class Block:
 			self.elements.append(record)
 			# block gets overflowed so the split functions work properly and an exception is raised that is to 
 			# be dealt with elsewhere with try: ... except OverflowError: ...
-			raise OverflowError("Block is full")	
+			raise OverflowError("Block is full")
+
+
+	def delete(self, element):  # element may be a record or a boundingArea - it doesn't matter
+		"""
+		:param record: Element to delete
+		:return: None
+		"""
+		try:
+			self.elements.remove(element)
+			return True
+		except ValueError:  # element does not exist in the block
+			return False
 		
 		
 	

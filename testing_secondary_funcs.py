@@ -28,7 +28,7 @@ if __name__ == '__main__':
     area5 = BoundingArea([Bounds(9.0, 11.0), Bounds(10.0, 14.0)], None)
     area6 = BoundingArea([Bounds(-5.0, 3.0), Bounds(3.0, 4.0)], None)
 
-    areas = [area1, area2, area3]
+    areas = [area1, area2, area3, area4, area5, area6]
     # shuffle(areas)
 
     # TESTING include_point
@@ -46,21 +46,21 @@ if __name__ == '__main__':
 
     
     # καπως ετσι να προσθετουμε γνκ στοιχεια στο block με το try except γτ τα split funcs θα το χρειαστουν το εξτρα overflowed record
-    # block = Block(True, 0)
+    # block = Block(True, None)
     # for rec in records:
     #     try:
     #         block.insert(rec)
-    #     except ValueError:
-    #         print("Block is full")
-    #         print("Initiating split...")
-
-    # block = Block(False, 0)
-    # for area in areas:
-    #     try:
-    #         block.insert(area)
     #     except OverflowError:
     #         print("Block is full")
     #         print("Initiating split...")
+
+    block = Block(False, None)
+    for area in areas:
+        try:
+            block.insert(area)
+        except OverflowError:
+            print("Block is full")
+            print("Initiating split...")
 
     
     # AREA OVERLAP TESTING - IT WORKS
@@ -115,10 +115,10 @@ if __name__ == '__main__':
     # sf.print_dist_recs(splits)
 
     # MBRs
-    # split_axis = sf.choose_split_axis_non_leaf(block)
-    # splits = sf.choose_split_index_non_leaf(split_axis, block)
-    # print(f"Split axis: {split_axis}")
-    # sf.print_dist_mbrs(splits)
+    split_axis = sf.choose_split_axis_non_leaf(block)
+    splits = sf.choose_split_index_non_leaf(split_axis, block)
+    print(f"Split axis: {split_axis}")
+    sf.print_dist_mbrs(splits)
 
     # Δοκιμή πρακτικής για διασπαση leaf-block
     # new_leaf1 = Block(True, 0)

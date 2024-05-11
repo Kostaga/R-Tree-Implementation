@@ -3,6 +3,7 @@ from record import Record
 from block import Block
 import numpy as np
 from copy import deepcopy
+import variables as var
 
 
 class BoundingArea:
@@ -144,7 +145,7 @@ class BoundingArea:
         Find the bounds of a list of bounding areas
         '''
         new_bounds = []
-        for dimension in range(len(bounding_areas[0].bounds)):  # in need of a better way to find the number of dimensions
+        for dimension in range(var.DIMENSIONS):
             # For each dimension, find the minimum and maximum values of the bounding areas
             min_values = np.min([bounding_area.bounds[dimension].lower for bounding_area in bounding_areas])
             max_values = np.max([bounding_area.bounds[dimension].upper for bounding_area in bounding_areas])
