@@ -44,7 +44,7 @@ class RTree():
 				self.reInsert(leaf, record)
 			
 			else: # else, split the node
-				new_blocks = self.split_node(leaf, record)  # tuple of the two new blocks
+				new_blocks = self.split_leaf(leaf, record)  # tuple of the two new blocks
 
 				if (new_blocks is not None):
 					# If a new block was returned, create a new root
@@ -141,7 +141,7 @@ class RTree():
 	
 	
 
-	def split_node(self, block: Block, record: Record):
+	def split_leaf(self, block: Block, record: Record):
 		"""
 		Split the node when it overflows.
 		"""
