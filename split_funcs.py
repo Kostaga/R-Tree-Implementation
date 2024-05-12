@@ -232,7 +232,7 @@ def choose_split_index_non_leaf(split_axis: int, block: Block):
                 # new best distribution
                 min_area_value = area_value
                 best_distribution = dist
-    return best_distribution  # tuple[list[Record], list[Record]]
+    return best_distribution  # tuple[list[boundingArea], list[BoundingArea]]
 
 
 def print_dist_recs(dist):

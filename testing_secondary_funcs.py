@@ -28,7 +28,7 @@ if __name__ == '__main__':
     area5 = BoundingArea([Bounds(9.0, 11.0), Bounds(10.0, 14.0)], None)
     area6 = BoundingArea([Bounds(-5.0, 3.0), Bounds(3.0, 4.0)], None)
 
-    areas = [area1, area2, area3]
+    areas = [area1, area2, area3, area4, area5, area6]
     # shuffle(areas)
 
     # TESTING include_point
@@ -46,15 +46,15 @@ if __name__ == '__main__':
 
     
     # καπως ετσι να προσθετουμε γνκ στοιχεια στο block με το try except γτ τα split funcs θα το χρειαστουν το εξτρα overflowed record
-    # block = Block(True, 0)
+    # block = Block(True, None)
     # for rec in records:
     #     try:
     #         block.insert(rec)
-    #     except ValueError:
+    #     except OverflowError:
     #         print("Block is full")
     #         print("Initiating split...")
 
-    # block = Block(False, 0)
+    # block = Block(False, None)
     # for area in areas:
     #     try:
     #         block.insert(area)
@@ -165,19 +165,19 @@ if __name__ == '__main__':
 
     # # TESTING BOUNDING AREA - IT WORKS
 
-    # bound1 = Bounds(5, 10)
-    # bound2 = Bounds(0, 10)
-    # area1 = BoundingArea([bound1, bound2], None)
+    bound1 = Bounds(5, 10)
+    bound2 = Bounds(0, 10)
+    area1 = BoundingArea([bound1, bound2], None)
     # print(area1)
 
-    # bound3 = Bounds(7, 20)
-    # bound4 = Bounds(0,10)
-    # area2 = BoundingArea([bound3, bound4], None)
-    # areas = [area1, area2]
+    bound3 = Bounds(7, 20)
+    bound4 = Bounds(0,10)
+    area2 = BoundingArea([bound3, bound4], None)
+    areas = [area1, area2]
 
     # print(area1.point_in_area((11.0, 2.0)))  # False
 
-    # print(area1.area_overlap(area2))  # 0
+    print(area1.area_overlap(area2))  # 0
 
     # for bound in BoundingArea.find_bounds_of_records(records):
     #     print(bound)  # Bounds: 1.0 - 5.0, 2.0 - 6.0

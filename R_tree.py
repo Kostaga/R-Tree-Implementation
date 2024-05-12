@@ -3,8 +3,8 @@ from block import Block
 from bounding_area import BoundingArea
 import variables
 import area_overlap as avp
+import split_funcs as sf
 
-import numpy as np
 import heapq
 import kNN_helper as knn
 
@@ -30,7 +30,7 @@ class RTree():
 		# I1 Invoke ChooseSubtree. with the level as a parameter,
 		# to find an appropriate node N, m which to place the
 		# new entry E
-		leaf: Block = self.chooseSubtree(record)
+		leaf, path = self.chooseSubtree(record)  # index 0 is the chosen leaf - index 1 is the path to the leaf
 		
 
 		try:
@@ -44,7 +44,7 @@ class RTree():
 				self.reInsert(leaf, record)
 			
 			else: # else, split the node
-				new_blocks = self.split_leaf(leaf, record)  # tuple of the two new blocks
+				new_blocks = self.split_node(leaf, path)  # tuple of the two new blocks
 
 				if (new_blocks is not None):
 					# If a new block was returned, create a new root
@@ -95,11 +95,16 @@ class RTree():
         Choose the subtree to insert a new record based on 
 		minimum overlap or area cost.
         """
+		# Path of block, MBR that the record will follow to reach the leaf
+		path = []
+
 		#CS1 Let N be the root
 		current_node: Block = self.root
+
 		#CS2 If N 1s a leaf, return N 
 		if (current_node.is_leaf):
-			return current_node
+			return current_node, path  # path is empty because the leaf is the root
+
 		
 		# else
 		# if the childpointers in N point to leaves, determine minimum overlap cost
@@ -116,16 +121,19 @@ class RTree():
 				if area_enlargement < min_area_enlargement or (area_enlargement == min_area_enlargement and mbr.area < best_mbr.area):
 					min_area_enlargement = area_enlargement
 					best_mbr = mbr
-			
+
+			path.append(current_node)
 			current_node = best_mbr.next_block
+			
 
 		# Current node has child pointers that point to leaves
 		# Determine minimum area enlargement
 		
 		best_mbr = avp.calculate_least_overlap_enlargement(current_node, record)
 		chosen_leaf = best_mbr.next_block
+		# Path does not include the leaf
 
-		return chosen_leaf
+		return chosen_leaf, path
 
 
 	def overflowTreatment(self, level: int) -> bool:
@@ -140,14 +148,66 @@ class RTree():
 		return False
 	
 	
-
-	def split_leaf(self, block: Block, record: Record):
+	def split_node(self, node: Block, path: list[tuple[Block]]) -> None:
 		"""
-		Split the node when it overflows.
+		Split node into two new nodes and insert the new mbrs to the parent block. Adjust the parent mbr of the parent block 
+		to the new mbrs. If the parent block overflows, split it as well.
+		:param node: Block to split
+		:param path: Path to the node - list of Blocks where the last element is the parent block of node
+		:return: None
 		"""
-		pass
 
-		 
+		# Create two new blocks and
+		# connect the proper pointers up and down
+		if node.is_leaf:  # node is a leaf and hence contains records
+			split_axis = sf.choose_split_axis_leaf(node)
+			splits = sf.choose_split_index_leaf(split_axis, node)
+
+			new_node1 = Block(is_leaf=True, parent_mbr=None)  # New nodes are leaves
+			new_node2 = Block(is_leaf=True, parent_mbr=None)	
+			new_mbr1 = BoundingArea(bounds=BoundingArea.find_bounds_of_records(splits[0]), next_block=new_node1)  # next_block is the pointer to leaf1
+			new_mbr2 = BoundingArea(bounds=BoundingArea.find_bounds_of_records(splits[1]), next_block=new_node2)  # next_block is the pointer to leaf2
+			
+		else:  # node is a non-leaf and hence contains bounding areas
+			split_axis = sf.choose_split_axis_non_leaf(node)
+			splits = sf.choose_split_index_non_leaf(split_axis, node)
+
+			new_node1 = Block(is_leaf=False, parent_mbr=None)  # new nodes are non-leaves
+			new_node2 = Block(is_leaf=False, parent_mbr=None)
+			new_mbr1 = BoundingArea(bounds=BoundingArea.find_bounds_of_areas(splits[0]), next_block=new_node1)  # next_block is the pointer to leaf1
+			new_mbr2 = BoundingArea(bounds=BoundingArea.find_bounds_of_areas(splits[1]), next_block=new_node2)  # next_block is the pointer to leaf2
+			
+		new_node1.parent_mbr = new_mbr1  # set the parent_mbr of leaf1 to the new mbr1 so wherever the mbr1 goes later in splits, leaf1 will "follow"
+		new_node2.parent_mbr = new_mbr2
+		new_node1.elements = splits[0]  # allocate the newlly split elements to the new nodes
+		new_node2.elements = splits[1]
+
+		if node.parent_mbr == None:  # at root level
+			new_root = Block(is_leaf=False, parent_mbr=None)
+			new_root.insert(new_mbr1)
+			new_root.insert(new_mbr2)
+			self.root = new_root
+		else:
+			# Delete the old mbr from the parent block
+			parent_block = path[-1]
+			old_mbr = node.parent_mbr
+			# path[-1] is the block that contains the parent mbr
+			if not parent_block.delete(old_mbr):
+				raise ValueError("MBR not found in parent block")
+			
+			# Insert the new mbrs to the parent and adjust the parent mbr of the parent block
+			try:
+				if parent_block.parent_mbr != None:  # if the parent block is not the root
+					parent_block.parent_mbr.include_area(new_mbr1)  # include the new mbrs to the parent mbr of the parent block
+					parent_block.parent_mbr.include_area(new_mbr2)
+
+				parent_block.insert(new_mbr1)  # old mbr was deleted so no overflow will not occur here
+				parent_block.insert(new_mbr2)  # overflow may occur here
+				
+			except OverflowError:
+				path.pop(-1)  # remove the last block from the path
+				self.split_node(parent_block, path)
+			
 			
 	def delete(self, record: Record):
 		"""
@@ -225,3 +285,12 @@ class RTree():
 		:return: None
 		"""
 		pass
+
+
+	def __str__(self):
+		first_two_levels = ""
+		first_two_levels += "Root: " + str(self.root) + "\n"
+		if not self.root.is_leaf:
+			for i, mbr in enumerate(self.root.elements):
+				first_two_levels += f"Child {i+1} \n {str(mbr.next_block)} + \n"
+		return first_two_levels
