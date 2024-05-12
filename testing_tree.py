@@ -11,6 +11,7 @@ if __name__ == '__main__':
     record4 = Record(4, (5, 3), 2)
     record5 = Record(5, (16, 13), 2)
     record6 = Record(6, (17, 14), 2)
+    
     records = [record1, record2, record3, record4, record5]
 
     area1 = BoundingArea([Bounds(4.0, 9.0), Bounds(2.0, 6.0)], None)
@@ -81,3 +82,4 @@ if __name__ == '__main__':
         r_tree.split_node(root, [])
     
     print(r_tree)
+

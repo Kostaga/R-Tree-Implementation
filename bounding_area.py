@@ -41,7 +41,7 @@ class BoundingArea:
                 return False
         return True
     
-    
+
     def area_overlap(self, other: 'BoundingArea'):
         '''
         Calculate the overlap between two bounding areas
@@ -84,6 +84,18 @@ class BoundingArea:
             # dim --> dimension
             bound.lower = min(self.bounds[dim].lower, record.location[dim])
             bound.upper = max(self.bounds[dim].upper, record.location[dim])
+
+        # Recalculate the area and margin of the bounding area
+        self.area = self.calculate_area()
+        self.margin = self.calculate_margin()
+
+    
+    def include_area(self, other: 'BoundingArea') -> None:
+        # Recalculate the bounds of the bounding area to include the other bounding area
+        for dim, bound in enumerate(self.bounds):
+            # dim --> dimension
+            bound.lower = min(self.bounds[dim].lower, other.bounds[dim].lower)
+            bound.upper = max(self.bounds[dim].upper, other.bounds[dim].upper)
 
         # Recalculate the area and margin of the bounding area
         self.area = self.calculate_area()
