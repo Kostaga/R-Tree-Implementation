@@ -122,7 +122,7 @@ class RTree():
 					min_area_enlargement = area_enlargement
 					best_mbr = mbr
 
-			path.append(current_node, best_mbr)			
+			path.append(current_node)
 			current_node = best_mbr.next_block
 			
 
@@ -148,11 +148,12 @@ class RTree():
 		return False
 	
 	
-	def split_node(self, node: Block, path: list[tuple[Block, BoundingArea]]) -> None:
+	def split_node(self, node: Block, path: list[tuple[Block]]) -> None:
 		"""
-		Split node into two new nodes and insert the new nodes to the parent block.
+		Split node into two new nodes and insert the new mbrs to the parent block. Adjust the parent mbr of the parent block 
+		to the new mbrs. If the parent block overflows, split it as well.
 		:param node: Block to split
-		:param path: Path to the node - tuples of (Block, BoundingArea)
+		:param path: Path to the node - list of Blocks where the last element is the parent block of node
 		:return: None
 		"""
 
@@ -188,19 +189,23 @@ class RTree():
 			self.root = new_root
 		else:
 			# Delete the old mbr from the parent block
-			parent_block = path[-1][0]
-			old_mbr = path[-1][1]
-			# path[-1][1] is the parent mbr that points to the node
-			# path[-1][0] is the block that contains the parent mbr
+			parent_block = path[-1]
+			old_mbr = node.parent_mbr
+			# path[-1] is the block that contains the parent mbr
 			if not parent_block.delete(old_mbr):
 				raise ValueError("MBR not found in parent block")
 			
-			# Insert the new mbrs to the parent block
+			# Insert the new mbrs to the parent and adjust the parent mbr of the parent block
 			try:
+				if parent_block.parent_mbr != None:  # if the parent block is not the root
+					parent_block.parent_mbr.include_area(new_mbr1)  # include the new mbrs to the parent mbr of the parent block
+					parent_block.parent_mbr.include_area(new_mbr2)
+
 				parent_block.insert(new_mbr1)  # old mbr was deleted so no overflow will not occur here
 				parent_block.insert(new_mbr2)  # overflow may occur here
+				
 			except OverflowError:
-				path.pop(-1)  # remove the last block, mbr from the path
+				path.pop(-1)  # remove the last block from the path
 				self.split_node(parent_block, path)
 			
 			

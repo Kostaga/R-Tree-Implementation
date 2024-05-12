@@ -11,13 +11,13 @@ if __name__ == '__main__':
     record4 = Record(4, (5, 3), 2)
     record5 = Record(5, (16, 13), 2)
     record6 = Record(6, (17, 14), 2)
-    
+
     records = [record1, record2, record3, record4, record5]
 
     area1 = BoundingArea([Bounds(4.0, 9.0), Bounds(2.0, 6.0)], None)
     area2 = BoundingArea([Bounds(3.0, 7.0), Bounds(1.0, 14.0)], None)
     area3 = BoundingArea([Bounds(15.0, 20.0), Bounds(6.0, 15.0)], None)
-    area4 = BoundingArea([Bounds(-12.0, 13.0), Bounds(-12.0, 20.0)], None)
+    area4 = BoundingArea([Bounds(12.0, 13.0), Bounds(12.0, 20.0)], None)
     area5 = BoundingArea([Bounds(9.0, 11.0), Bounds(10.0, 14.0)], None)
     area6 = BoundingArea([Bounds(-5.0, 3.0), Bounds(3.0, 4.0)], None)
 
@@ -82,4 +82,14 @@ if __name__ == '__main__':
         r_tree.split_node(root, [])
     
     print(r_tree)
+    area7 = BoundingArea([Bounds(1.0, 2.0), Bounds(1.0, 2.0)], None)
+    area8 = BoundingArea([Bounds(3.0, 4.0), Bounds(3.0, 4.0)], None)
+    try:
+        r_tree.root.elements[0].next_block.insert(area7)
+        r_tree.root.elements[0].next_block.insert(area8)
+    except OverflowError:
+        r_tree.split_node(r_tree.root.elements[0].next_block, [r_tree.root])
+        print(r_tree)
+        print(r_tree.root.elements[0].next_block.elements[0].next_block)
+
 

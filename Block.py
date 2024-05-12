@@ -48,7 +48,10 @@ class Block:
 		try:
 			self.elements.remove(element)
 			return True
-		except ValueError:  # element does not exist in the block
+		except ValueError:  # element does not exist in the block - for debugging purposes
+			print(self)
+			print("Element does not exist in the block. Element:\n")
+			print(element)
 			return False
 		
 		
