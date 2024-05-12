@@ -168,7 +168,8 @@ class BoundingArea:
     
 
     def __str__(self) -> str:
-        return f"BB: {', '.join([f"{i+1}. {str(bound)}" for i, bound in enumerate(self.bounds)])}"
+        return f"BB: {', '.join([f'{i+1}. {str(bound)}' for i, bound in enumerate(self.bounds)])}"
+
     
     
     

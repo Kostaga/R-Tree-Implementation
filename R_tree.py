@@ -46,7 +46,7 @@ class RTree():
 			else: # else, split the node
 				new_blocks = self.split_node(leaf, path)  # tuple of the two new blocks
 
-				if (new_blocks[0] != None):
+				if (new_blocks != None):
 					# If a new block was returned, create a new root
 					self.root = new_blocks
 					# self.root.level = self.root.elements[0].next_block.level + 1
@@ -157,9 +157,8 @@ class RTree():
 		# Current node has child pointers that point to leaves
 		# Determine minimum area enlargement
 		
-		best_mbr = avp.calculate_least_overlap_enlargement(current_node, record)
-		chosen_leaf = best_mbr.next_block
-		# Path does not include the leaf
+		best_mbr_index = avp.calculate_least_overlap_enlargement(current_node, record)
+		chosen_leaf = current_node.elements[best_mbr_index].next_block		# Path does not include the leaf
 
 		return chosen_leaf, path
 
