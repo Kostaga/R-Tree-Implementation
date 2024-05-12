@@ -3,6 +3,7 @@ from record import Record
 from block import Block
 import numpy as np
 from copy import deepcopy
+import variables as var
 
 
 class BoundingArea:
@@ -40,18 +41,17 @@ class BoundingArea:
                 return False
         return True
     
+
     def area_overlap(self, other: 'BoundingArea'):
         '''
         Calculate the overlap between two bounding areas
         '''
+        overlap = 1
         for i, bound in enumerate(self.bounds):
             if bound.lower > other.bounds[i].upper or bound.upper < other.bounds[i].lower:
                 return 0
-
-        overlap = 1
-        for i, bound in enumerate(self.bounds):
-            overlap *= min(bound.upper, other.bounds[i].upper) - max(bound.lower, other.bounds[i].lower)
-        
+            else:
+                overlap *= min(bound.upper, other.bounds[i].upper) - max(bound.lower, other.bounds[i].lower)        
         return overlap
 
         
@@ -90,6 +90,18 @@ class BoundingArea:
         self.margin = self.calculate_margin()
        
     
+
+    
+    def include_area(self, other: 'BoundingArea') -> None:
+        # Recalculate the bounds of the bounding area to include the other bounding area
+        for dim, bound in enumerate(self.bounds):
+            # dim --> dimension
+            bound.lower = min(self.bounds[dim].lower, other.bounds[dim].lower)
+            bound.upper = max(self.bounds[dim].upper, other.bounds[dim].upper)
+
+        # Recalculate the area and margin of the bounding area
+        self.area = self.calculate_area()
+        self.margin = self.calculate_margin()
 
 
     def calculate_area_enlargement(self, record: Record) -> float:
@@ -146,7 +158,7 @@ class BoundingArea:
         Find the bounds of a list of bounding areas
         '''
         new_bounds = []
-        for dimension in range(len(bounding_areas[0].bounds)):  # in need of a better way to find the number of dimensions
+        for dimension in range(var.DIMENSIONS):
             # For each dimension, find the minimum and maximum values of the bounding areas
             min_values = np.min([bounding_area.bounds[dimension].lower for bounding_area in bounding_areas])
             max_values = np.max([bounding_area.bounds[dimension].upper for bounding_area in bounding_areas])
