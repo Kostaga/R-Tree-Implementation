@@ -84,6 +84,8 @@ class RTree():
 			new_mbr = BoundingArea.find_bounds_of_areas(pairs[p:]) # adjust the bounds of the remaining entries
 			block.parent_mbr.bounds = new_mbr # adjust the bounds of the parent mbr
 
+			# RI4 in the sort defined in RI2, starting with the maximum distance
+			# or minimum distance, invoke insert to reinsert the entries
 			for entry in removed_entries:
 				block.elements.remove(entry[0]) # remove the entries from the block
 				self.insert(entry[0]) # reinsert the entries
@@ -105,20 +107,13 @@ class RTree():
 			new_mbr = BoundingArea.find_bounds_of_records(pairs[p:])
 			block.parent_mbr.bounds = new_mbr
 
+			# RI4 in the sort defined in RI2, starting with the maximum distance
+			# or minimum distance, invoke insert to reinsert the entries
 			for entry in removed_entries:
 				block.elements.remove(entry[0])
 				self.insert(entry[0])
 			
 		
-
-		
-		
-		# RI4 in the sort defined in RI2, starting with the maximum distance
-		# or minimum distance, invoke insert to reinsert the entries
-  
-			
-		# not yet implemented
-
 
 
 
