@@ -41,18 +41,17 @@ class BoundingArea:
                 return False
         return True
     
+    
     def area_overlap(self, other: 'BoundingArea'):
         '''
         Calculate the overlap between two bounding areas
         '''
+        overlap = 1
         for i, bound in enumerate(self.bounds):
             if bound.lower > other.bounds[i].upper or bound.upper < other.bounds[i].lower:
                 return 0
-
-        overlap = 1
-        for i, bound in enumerate(self.bounds):
-            overlap *= min(bound.upper, other.bounds[i].upper) - max(bound.lower, other.bounds[i].lower)
-        
+            else:
+                overlap *= min(bound.upper, other.bounds[i].upper) - max(bound.lower, other.bounds[i].lower)        
         return overlap
 
         

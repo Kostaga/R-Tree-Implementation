@@ -54,13 +54,13 @@ if __name__ == '__main__':
     #         print("Block is full")
     #         print("Initiating split...")
 
-    block = Block(False, None)
-    for area in areas:
-        try:
-            block.insert(area)
-        except OverflowError:
-            print("Block is full")
-            print("Initiating split...")
+    # block = Block(False, None)
+    # for area in areas:
+    #     try:
+    #         block.insert(area)
+    #     except OverflowError:
+    #         print("Block is full")
+    #         print("Initiating split...")
 
     
     # AREA OVERLAP TESTING - IT WORKS
@@ -115,10 +115,10 @@ if __name__ == '__main__':
     # sf.print_dist_recs(splits)
 
     # MBRs
-    split_axis = sf.choose_split_axis_non_leaf(block)
-    splits = sf.choose_split_index_non_leaf(split_axis, block)
-    print(f"Split axis: {split_axis}")
-    sf.print_dist_mbrs(splits)
+    # split_axis = sf.choose_split_axis_non_leaf(block)
+    # splits = sf.choose_split_index_non_leaf(split_axis, block)
+    # print(f"Split axis: {split_axis}")
+    # sf.print_dist_mbrs(splits)
 
     # Δοκιμή πρακτικής για διασπαση leaf-block
     # new_leaf1 = Block(True, 0)
@@ -165,19 +165,19 @@ if __name__ == '__main__':
 
     # # TESTING BOUNDING AREA - IT WORKS
 
-    # bound1 = Bounds(5, 10)
-    # bound2 = Bounds(0, 10)
-    # area1 = BoundingArea([bound1, bound2], None)
+    bound1 = Bounds(5, 10)
+    bound2 = Bounds(0, 10)
+    area1 = BoundingArea([bound1, bound2], None)
     # print(area1)
 
-    # bound3 = Bounds(7, 20)
-    # bound4 = Bounds(0,10)
-    # area2 = BoundingArea([bound3, bound4], None)
-    # areas = [area1, area2]
+    bound3 = Bounds(7, 20)
+    bound4 = Bounds(0,10)
+    area2 = BoundingArea([bound3, bound4], None)
+    areas = [area1, area2]
 
     # print(area1.point_in_area((11.0, 2.0)))  # False
 
-    # print(area1.area_overlap(area2))  # 0
+    print(area1.area_overlap(area2))  # 0
 
     # for bound in BoundingArea.find_bounds_of_records(records):
     #     print(bound)  # Bounds: 1.0 - 5.0, 2.0 - 6.0
