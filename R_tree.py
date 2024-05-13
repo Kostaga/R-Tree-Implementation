@@ -44,12 +44,7 @@ class RTree():
 				self.reInsert(leaf, record)
 			
 			else: # else, split the node
-				new_blocks = self.split_node(leaf, path)  # tuple of the two new blocks
-
-				if (new_blocks != None):
-					# If a new block was returned, create a new root
-					self.root = new_blocks
-					# self.root.level = self.root.elements[0].next_block.level + 1
+				self.split_node(leaf, path)  # tuple of the two new blocks
 		
 		
 		Block.level_overflow.clear()  # clear the set of levels that have been overflowed
@@ -118,7 +113,7 @@ class RTree():
 
 
 
-	def chooseSubtree(self, record: Record) -> Block:
+	def chooseSubtree(self, record: Record) -> (Block,list[Block]):
 		"""
         Choose the subtree to insert a new record based on 
 		minimum overlap or area cost.

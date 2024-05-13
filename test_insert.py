@@ -18,7 +18,10 @@ record10 = Record(10, (25, 17), 2)
 record11 = Record(11, (26, 18), 2)
 
 
-r_tree = RTree()
+
+
+
+r_tree: RTree = RTree()
 r_tree.insert(record1)
 r_tree.insert(record2)
 r_tree.insert(record3)
@@ -26,6 +29,11 @@ r_tree.insert(record4)
 r_tree.insert(record5)
 r_tree.insert(record6)
 r_tree.insert(record7)
+r_tree.insert(record8)
+r_tree.insert(record9)
+r_tree.insert(record10)
+
+
 
 print(r_tree)
 
