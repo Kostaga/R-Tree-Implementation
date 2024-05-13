@@ -88,6 +88,8 @@ class BoundingArea:
         # Recalculate the area and margin of the bounding area
         self.area = self.calculate_area()
         self.margin = self.calculate_margin()
+       
+    
 
     
     def include_area(self, other: 'BoundingArea') -> None:
@@ -166,7 +168,8 @@ class BoundingArea:
     
 
     def __str__(self) -> str:
-        return f"BB: {', '.join([f"{i+1}. {str(bound)}" for i, bound in enumerate(self.bounds)])}"
+        return f"BB: {', '.join([f'{i+1}. {str(bound)}' for i, bound in enumerate(self.bounds)])}"
+
     
     
     
