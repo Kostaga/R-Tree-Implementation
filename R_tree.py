@@ -12,6 +12,7 @@ import kNN_helper as knn
 class RTree():
 
 	level_overflow: set = set() # keep track of levels that have been overflowed
+	level_underflow: set = set()  # keep track of levels that have been underflowed
 	
 	def __init__(self, root=None):  # initialize root only for testing purposes
 		self.root = Block(is_leaf=True, parent_mbr=None, parent_block=None) if root == None else root
@@ -263,13 +264,73 @@ class RTree():
 				else:
 					self.split_node(parent_block)
 			
+	
+	def underflowTreatment(self, level : int) -> bool:
+		if level == 0:
+			return False
+		
+		# UT2 If the level is not the root level and this is the first
+		# call of UnderflowTreatment in the given level during the
+		# deletion of one data rectangle, then
+		if level not in RTree.level_underflow:
+			RTree.level_underflow.add(level)
+			return True
+		return False
+
+
+	def delete_data(self, record: Record):
+		"""
+		Delete data from the R-tree
+		:param record: Record object to delete
+		:return: None
+		"""
+		self.delete(record)
+
+		RTree.level_underflow.clear()
 			
 	def delete(self, record: Record):
 		"""
 		:param record: Record object to delete
 		:return: None
 		"""
-		pass
+		re_insertions = []  # list of reinserted elements
+		re_insert_flag = False
+		record_bounds = BoundingArea(bounds=BoundingArea.find_bounds_of_records([record]), next_block=None)
+
+		# decrease upper bound and lower bound by 0.001 to avoid floating point errors
+		for bound in record_bounds.bounds:
+			bound.upper += 0.001
+			bound.lower -= 0.001
+
+		stack = [self.root]
+		while len(stack) > 0:
+			node = stack.pop()  # pop the last element / index = -1 by default
+			if node.is_leaf:  # node is leaf, so it contains records
+				if record in node.elements:  # check if the record is in the query area
+					node.elements.remove(record)
+					node.parent_mbr.bounds = BoundingArea.find_bounds_of_records(node.elements)  # adjust the parent mbr of the node
+					for element in node.elements:
+						re_insertions.append(element)
+					if len(node.elements) < variables.MIN_ELEMENTS:
+						re_insert_flag = self.underflowTreatment(node.get_level())
+						for element in node.elements:
+							node.elements.remove(element)
+	
+						# delete the mbr from the parent block
+						node.parent_block.delete(node.parent_mbr)
+						
+					break
+			else:  # node is non-leaf, so it contains bounding areas
+				for mbr in node.elements:
+					if record_bounds.area_overlap(mbr) > 0:  # area_overlap returns the overlap area so it needs to be greater than zero
+						stack.append(mbr.next_block)
+		
+		# reinsert the elements that were left from the underflowed node
+		if re_insert_flag:
+			for element in re_insertions:
+				self.insert_data(element)
+
+		
 
 	
 	def adjust_insertion_path_mbrs(self, node: Block, element):

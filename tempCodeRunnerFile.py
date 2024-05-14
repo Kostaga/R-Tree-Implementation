@@ -1,0 +1,1 @@
+r_tree.delete_data(record2)
