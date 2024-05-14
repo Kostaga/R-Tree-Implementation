@@ -10,6 +10,8 @@ import kNN_helper as knn
 
 
 class RTree():
+
+	level_overflow: set = set() # keep track of levels that have been overflowed
 	
 	def __init__(self, root=None):  # initialize root only for testing purposes
 		self.root = root
@@ -35,19 +37,21 @@ class RTree():
 
 		try:
 			# If N has less than M entries, accommodate E in N
-			leaf.insert(record)
+			self.adjust_insertion_path_mbrs(path, record)
+			leaf.insert(record)  # OverflowError is raised if the block is full
 		except OverflowError:
 			# If N has M entries, invoke OverflowTreatment
-			re_insert_flag = self.overflowTreatment(leaf.get_level())
+			leaf_level = len(path)  # level of the leaf
+			re_insert_flag = self.overflowTreatment(leaf_level)
 
 			if (re_insert_flag): # If boolean variable is true, invoke reinsert
 				self.reInsert(leaf, record)
 			
 			else: # else, split the node
-				self.split_node(leaf, path)  # tuple of the two new blocks
+				self.split_node(leaf, [block for block, _ in path])
 		
 		
-		Block.level_overflow.clear()  # clear the set of levels that have been overflowed
+		RTree.level_overflow.clear()  # clear the set of levels that have been overflowed
 				
 			
 	
@@ -91,6 +95,7 @@ class RTree():
 			# RI1 Compute the distance between the center of the rectangle and the center of the bounding rectangle of N
 			pairs = []
 			for element in block.elements:
+				# Suspicous: calculate_center_distance_leaf is not a method of the Record class
 				distance = element.calculate_center_distance_leaf(record) # calculate the distance between the center of the element and the center of the parent mbr
 				pairs.append((element, distance))
 			
@@ -110,10 +115,7 @@ class RTree():
 			
 		
 
-
-
-
-	def chooseSubtree(self, record: Record) -> (Block,list[Block]):
+	def chooseSubtree(self, record: Record) -> tuple[Block,list[tuple[Block, BoundingArea]]]:
 		"""
         Choose the subtree to insert a new record based on 
 		minimum overlap or area cost.
@@ -145,7 +147,7 @@ class RTree():
 					min_area_enlargement = area_enlargement
 					best_mbr = mbr
 
-			path.append(current_node)
+			path.append(current_node, best_mbr)  # append the current node and the best mbr to the path - tuple
 			current_node = best_mbr.next_block
 			
 
@@ -153,7 +155,9 @@ class RTree():
 		# Determine minimum area enlargement
 		
 		best_mbr_index = avp.calculate_least_overlap_enlargement(current_node, record)
-		chosen_leaf = current_node.elements[best_mbr_index].next_block		# Path does not include the leaf
+		chosen_leaf = current_node.elements[best_mbr_index].next_block
+
+		# Path does not include the leaf !!!
 
 		return chosen_leaf, path
 
@@ -164,13 +168,13 @@ class RTree():
 		# durmg the Insertion of one data rectangle, then
 		if level != 0:  # if the level is not the root level --> level 0
 			# Mark level as already inserted
-			if (level not in Block.level_overflow):
-				Block.level_overflow.add(level)
+			if (level not in RTree.level_overflow):
+				RTree.level_overflow.add(level)
 				return True
 		return False
 	
 	
-	def split_node(self, node: Block, path: list[tuple[Block]]) -> None:
+	def split_node(self, node: Block, path: list[Block]) -> None:
 		"""
 		Split node into two new nodes and insert the new mbrs to the parent block. Adjust the parent mbr of the parent block 
 		to the new mbrs. If the parent block overflows, split it as well.
@@ -219,16 +223,18 @@ class RTree():
 			
 			# Insert the new mbrs to the parent and adjust the parent mbr of the parent block
 			try:
-				if parent_block.parent_mbr != None:  # if the parent block is not the root
-					parent_block.parent_mbr.include_area(new_mbr1)  # include the new mbrs to the parent mbr of the parent block
-					parent_block.parent_mbr.include_area(new_mbr2)
-
+				# No parent_mbr adjustment is needed here because the it was adjusted in the adjust_insertion_path_mbrs function
 				parent_block.insert(new_mbr1)  # old mbr was deleted so no overflow will not occur here
 				parent_block.insert(new_mbr2)  # overflow may occur here
 				
 			except OverflowError:
-				path.pop(-1)  # remove the last block from the path
-				self.split_node(parent_block, path)
+				path.pop(-1)  # remove the last block/parent block from the path that is now overflowed
+				parent_block_level = len(path)  # level of the parent block
+				re_insert_flag = self.overflowTreatment(parent_block_level)
+				if (re_insert_flag):
+					self.reInsert(parent_block)
+				else:
+					self.split_node(parent_block, path)
 			
 			
 	def delete(self, record: Record):
@@ -237,6 +243,17 @@ class RTree():
 		:return: None
 		"""
 		pass
+
+	
+	def adjust_insertion_path_mbrs(self, path: list[BoundingArea], record: Record):
+		"""
+		Adjust the parent mbrs of the path to the inserted record.
+		:param path: List of MBRs that the record has passed to reach the leaf
+		:return: None
+		"""
+		for i in range(len(path)):  # iterate from the root-block's mbr to the leaf-parent mbr
+			path[i].include_point(record)  # include the new record to the mbr
+		
 
 
 
