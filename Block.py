@@ -7,17 +7,18 @@ class Block:
 	min: int = int(variables.M * max)
 	
 	# Intialize Block object, with blockID and empty elements list
-	def __init__(self, is_leaf: bool, parent_mbr):  # parent_mbr is the boundingArea that points to this block of elements
+	def __init__(self, is_leaf: bool, parent_mbr, parent_block):  # parent_mbr is the boundingArea that points to this block of elements
 		self.elements: list = [] # List of MBRs/elements # Percentage of M
 		self.is_leaf: bool = is_leaf
 		self.parent_mbr = parent_mbr  # mbr that has a pointer next_block to this block
+		self.parent_block = parent_block 
 
 
 	def get_level(self):
 		level = 0
 		current_block = self
-		while(current_block.parent_mbr != None):  # root has no parent_mbr - so root has level 0
-			current_block = current_block.parent_mbr
+		while(current_block.parent_block != None):  # root has no parent_mbr - so root has level 0
+			current_block = current_block.parent_block
 			level += 1
 		return level
 

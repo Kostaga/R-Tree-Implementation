@@ -104,12 +104,15 @@ class BoundingArea:
         self.margin = self.calculate_margin()
 
 
-    def calculate_area_enlargement(self, record: Record) -> float:
+    def calculate_area_enlargement(self, element) -> float:
         '''
-        Calculate the area enlargement if the bounding area is expanded to include the record
+        Calculate the area enlargement if the bounding area is expanded to include the record/area
         '''
         copy_mbr = deepcopy(self)
-        copy_mbr.include_point(record)
+        if isinstance(element, Record):
+            copy_mbr.include_point(element)
+        else:
+            copy_mbr.include_area(element)
         return copy_mbr.area - self.area
         
 
@@ -123,7 +126,7 @@ class BoundingArea:
         return center
         
 
-    def calculate_center_distance_leaf(self, record: Record):  # self is parent mbr, other is child record
+    def calculate_center_distance_to_record(self, record: Record):  # self is parent mbr, other is child record
         '''
         Calculate the distance between the center of the bounding area and the record
         '''
@@ -131,7 +134,7 @@ class BoundingArea:
         return np.sqrt(np.sum(np.square(np.subtract(center, record.location))))
 
 
-    def calculate_center_distance_non_leaf(self, other: 'BoundingArea'):  # self is parent mbr, other is child mbr
+    def calculate_center_distance_to_mbr(self, other: 'BoundingArea'):  # self is parent mbr, other is child mbr
         '''
         Calculate the distance between the centers of two bounding areas
         '''
