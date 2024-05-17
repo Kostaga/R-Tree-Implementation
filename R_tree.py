@@ -12,7 +12,6 @@ import kNN_helper as knn
 class RTree():
 
 	level_overflow: set = set() # keep track of levels that have been overflowed
-	level_underflow: set = set()  # keep track of levels that have been underflowed
 	
 	def __init__(self, root=None):  # initialize root only for testing purposes
 		self.root = Block(is_leaf=True, parent_mbr=None, parent_block=None) if root == None else root
@@ -265,29 +264,7 @@ class RTree():
 					self.split_node(parent_block)
 			
 	
-	def underflowTreatment(self, level : int) -> bool:
-		if level == 0:
-			return False
-		
-		# UT2 If the level is not the root level and this is the first
-		# call of UnderflowTreatment in the given level during the
-		# deletion of one data rectangle, then
-		if level not in RTree.level_underflow:
-			RTree.level_underflow.add(level)
-			return True
-		return False
-
-
-	def delete_data(self, record: Record):
-		"""
-		Delete data from the R-tree
-		:param record: Record object to delete
-		:return: None
-		"""
-		self.delete(record)
-
-		RTree.level_underflow.clear()
-			
+	
 	def delete(self, record: Record):
 		"""
 		:param record: Record object to delete
