@@ -306,13 +306,12 @@ class RTree():
 		while len(stack) > 0:
 			node = stack.pop()  # pop the last element / index = -1 by default
 			if node.is_leaf:  # node is leaf, so it contains records
-				if record in node.elements:  # check if the record is in the query area
 					node.elements.remove(record)
 					node.parent_mbr.bounds = BoundingArea.find_bounds_of_records(node.elements)  # adjust the parent mbr of the node
 					for element in node.elements:
 						re_insertions.append(element)
 					if len(node.elements) < variables.MIN_ELEMENTS:
-						re_insert_flag = self.underflowTreatment(node.get_level())
+						re_insert_flag = True
 						for element in node.elements:
 							node.elements.remove(element)
 	
