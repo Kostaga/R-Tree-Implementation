@@ -4,6 +4,7 @@ from bounding_area import BoundingArea
 import variables
 import area_overlap as avp
 import split_funcs as sf
+from zorder import z_order_curve
 
 import heapq
 import kNN_helper as knn
@@ -52,6 +53,10 @@ class RTree():
 		try:
 			# If N has less than M entries, accommodate E in N
 			self.adjust_insertion_path_mbrs(node, element)
+			
+			if isinstance(element, BoundingArea):
+				element.next_block.parent_block = node  # set the parent block of the next_block of the element to the node that the element is going to be inserted
+				
 			node.insert(element)  # OverflowError is raised if the block is full
 		except OverflowError:
 			# If N has M entries, invoke OverflowTreatment
@@ -270,8 +275,6 @@ class RTree():
 		:param record: Record object to delete
 		:return: None
 		"""
-		re_insertions = []  # list of reinserted elements
-		re_insert_flag = False
 		record_bounds = BoundingArea(bounds=BoundingArea.find_bounds_of_records([record]), next_block=None)
 
 		# decrease upper bound and lower bound by 0.001 to avoid floating point errors
@@ -283,29 +286,48 @@ class RTree():
 		while len(stack) > 0:
 			node = stack.pop()  # pop the last element / index = -1 by default
 			if node.is_leaf:  # node is leaf, so it contains records
-					node.elements.remove(record)
+				if node.delete(record):  # delete the record from the leaf - may return False if the record does not exist in the block
 					node.parent_mbr.bounds = BoundingArea.find_bounds_of_records(node.elements)  # adjust the parent mbr of the node
-					for element in node.elements:
-						re_insertions.append(element)
-					if len(node.elements) < variables.MIN_ELEMENTS:
-						re_insert_flag = True
-						for element in node.elements:
-							node.elements.remove(element)
-	
-						# delete the mbr from the parent block
-						node.parent_block.delete(node.parent_mbr)
-						
+					self.underflow(node) #  recursive function that checks for underflow
 					break
 			else:  # node is non-leaf, so it contains bounding areas
 				for mbr in node.elements:
 					if record_bounds.area_overlap(mbr) > 0:  # area_overlap returns the overlap area so it needs to be greater than zero
 						stack.append(mbr.next_block)
-		
-		# reinsert the elements that were left from the underflowed node
-		if re_insert_flag:
-			for element in re_insertions:
-				self.insert_data(element)
 
+
+		RTree.level_overflow.clear()  # clear the set of levels that have been overflowed
+
+
+	def underflow(self, node: Block) -> bool:
+		level = node.get_level()
+		if level == 0:
+			if len(node.elements) == 1 and isinstance(node.elements[0], BoundingArea):  # root has only one child
+				# Set new root
+				self.root = node.elements[0].next_block
+				node.elements[0].next_block.parent_block = None
+				node.elements[0].next_block.parent_mbr = None
+			return
+		
+		if len(node.elements) < variables.MIN_ELEMENTS:
+			re_insertions = []  # list of elements to be reinserted
+			for element in node.elements:
+				re_insertions.append(element)
+			for element in node.elements:
+				node.delete(element)
+
+			# delete the mbr from the parent block
+			node.parent_block.delete(node.parent_mbr)
+			if node.is_leaf:
+				for element in re_insertions:
+					self.insert(element)  # level = - 1 by default
+			else:
+				for element in re_insertions:  # reisert the mbrs with the level they were inserted
+					self.insert(element, level)
+
+			if len(node.parent_block.elements) < variables.MIN_ELEMENTS:  # propagate changes to the parent block if needed
+				self.underflow(node.parent_block)
+		
 		
 
 	
@@ -389,43 +411,55 @@ class RTree():
 		
 
 
-	def z_order_curve(self, records: list[Record]) -> list[Record]:
-		"""
-		:param records: A list of point coords
-		:return: List of records sorted by Z-order curve
-		"""
-		def calculate_z_order(coords: tuple) -> int:
-			"""Helper function to calculate Z-order for a point in any number of dimensions."""
-			z = 0
-			max_bits = max(coord.bit_length() for coord in coords)
-			for i in range(max_bits):
-				for j, coord in enumerate(coords):
-					z |= ((coord >> i) & 1) << (i * len(coords) + j)
-			return z
-
-	    # Assuming each record has an attribute `coords` which is a list of its coordinates.
-		for record in records:
-			record.z_value = calculate_z_order(record.location)
-
-	    # Sort records by their Z-order value.
-		sorted_records = sorted(records, key=lambda record: record.z_value)
-		    
-		return sorted_records
-	
-	
-
-
-
-		
-
-
 	def bottomUp(self, records: list[Record]):
 		"""
+		Builds the R* tree from the leaves by using the bottom-up algorithm.
 		:param records: A list of point coords
 		:return: None
 		"""
-		pass
+		# BU1 Build a list of all leaf nodes
+		block_len = variables.MAX_ELEMENTS
+		sorted_recods = z_order_curve(records)
+		leaf_nodes = []
+		for i in range(0, len(sorted_recods), block_len):
+			leaf_node = Block(is_leaf=True, parent_mbr=None, parent_block=None)
+			leaf_node.elements = sorted_recods[i:i+block_len]  # get next full block of records
+			leaf_nodes.append(leaf_node)
+		
+		def recursion(blocks: list):
+			'''
+			In each recursion, all the necessary parent blocks are created and the mbrs are inserted into them
+			:param blocks: The list of blocks in the current level'''
+			if len(blocks) == 1:
+				self.root = blocks[0]
+				return
+			
+			parent_blocks = []
+			counter = 0
+			current_parent_block = Block(is_leaf=False, parent_mbr=None, parent_block=None)  # create a new parent block
+			parent_blocks.append(current_parent_block)  # add the parent block to the list of new parent blocks
+			for block in blocks:
+				# Create a new parent mbr for each block
+				if block.is_leaf:
+					mbr = BoundingArea(bounds=BoundingArea.find_bounds_of_records(block.elements), next_block=block)
+				else: 
+					mbr = BoundingArea(bounds=BoundingArea.find_bounds_of_areas(block.elements), next_block=block)
 
+				# Insert the mbr into the parent block and set the parent mbr and parent block of the child block
+				current_parent_block.insert(mbr)
+				block.parent_mbr = mbr
+				block.parent_block = current_parent_block
+				
+				# If the parent block is full, create a new parent block
+				counter += 1
+				if counter % block_len == 0:
+					current_parent_block = Block(is_leaf=False, parent_mbr=None, parent_block=None)
+					parent_blocks.append(current_parent_block)
+			
+			recursion(parent_blocks)
+
+		recursion(leaf_nodes)  # Start the recursion with the leaf blocks
+		
 
 	def __str__(self):
 		first_two_levels = ""

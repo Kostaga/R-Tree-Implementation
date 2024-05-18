@@ -29,12 +29,12 @@ r_tree.insert_data(record8)
 r_tree.insert_data(record9)
 r_tree.insert_data(record10)
 
-
+print(r_tree)
 r_tree.delete(record1)
 r_tree.delete(record2)
 r_tree.delete(record3)
 r_tree.delete(record4)
-print(r_tree)
 r_tree.delete(record5)
 print(r_tree)
+
 
