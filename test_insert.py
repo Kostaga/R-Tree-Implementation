@@ -41,5 +41,9 @@ if __name__ == '__main__':
     print("Record 10 insert_dataed")
     print(r_tree)
 
+    query_area = BoundingArea([Bounds(3.5, 5), Bounds(2.5, 5)], None)
+    for record in r_tree.range_query(query_area):
+        print("RANGE QUERY: ",record) 
+
 
 
