@@ -263,13 +263,50 @@ class RTree():
 				else:
 					self.split_node(parent_block)
 			
-			
+	
+	
 	def delete(self, record: Record):
 		"""
 		:param record: Record object to delete
 		:return: None
 		"""
-		pass
+		re_insertions = []  # list of reinserted elements
+		re_insert_flag = False
+		record_bounds = BoundingArea(bounds=BoundingArea.find_bounds_of_records([record]), next_block=None)
+
+		# decrease upper bound and lower bound by 0.001 to avoid floating point errors
+		for bound in record_bounds.bounds:
+			bound.upper += 0.001
+			bound.lower -= 0.001
+
+		stack = [self.root]
+		while len(stack) > 0:
+			node = stack.pop()  # pop the last element / index = -1 by default
+			if node.is_leaf:  # node is leaf, so it contains records
+					node.elements.remove(record)
+					node.parent_mbr.bounds = BoundingArea.find_bounds_of_records(node.elements)  # adjust the parent mbr of the node
+					for element in node.elements:
+						re_insertions.append(element)
+					if len(node.elements) < variables.MIN_ELEMENTS:
+						re_insert_flag = True
+						for element in node.elements:
+							node.elements.remove(element)
+	
+						# delete the mbr from the parent block
+						node.parent_block.delete(node.parent_mbr)
+						
+					break
+			else:  # node is non-leaf, so it contains bounding areas
+				for mbr in node.elements:
+					if record_bounds.area_overlap(mbr) > 0:  # area_overlap returns the overlap area so it needs to be greater than zero
+						stack.append(mbr.next_block)
+		
+		# reinsert the elements that were left from the underflowed node
+		if re_insert_flag:
+			for element in re_insertions:
+				self.insert_data(element)
+
+		
 
 	
 	def adjust_insertion_path_mbrs(self, node: Block, element):
