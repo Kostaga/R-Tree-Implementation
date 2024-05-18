@@ -52,6 +52,10 @@ class RTree():
 		try:
 			# If N has less than M entries, accommodate E in N
 			self.adjust_insertion_path_mbrs(node, element)
+			
+			if isinstance(element, BoundingArea):
+				element.next_block.parent_block = node  # set the parent block of the next_block of the element to the node that the element is going to be inserted
+				
 			node.insert(element)  # OverflowError is raised if the block is full
 		except OverflowError:
 			# If N has M entries, invoke OverflowTreatment
