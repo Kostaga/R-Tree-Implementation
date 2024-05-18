@@ -44,13 +44,10 @@ if __name__ == "__main__":
         location = (float(element.attrib['lat']), float(element.attrib['lon']))
         recID = block_index  # Αποθήκευση του node στο block που δείχνει το block_index
         # Generate a random name for the record
-        name = location_name_generator()
-        # !!!!!!!!!!! Add it later to the Record class !!!!!!!!!!!
+        loc_name = location_name_generator()
         
-        nodes[block_index].append(Record(id, location, recID))
+        nodes[block_index].append(Record(id, location, recID, name=loc_name))
         
-
-
 
     magic_block['num_of_nodes'] = counter  # πόσα nodes έχουμε συνολικά - υπολογίστηκε στο parsing του osm/xml αρχείου
     magic_block['num_of_blocks'] = block_index

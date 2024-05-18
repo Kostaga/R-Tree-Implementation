@@ -3,6 +3,7 @@ from R_tree import RTree
 from bounds import Bounds
 from block import Block
 from bounding_area import BoundingArea
+from zorder import z_order_curve
 
 
 record1 = Record(1, (5, 5), 1)
@@ -20,8 +21,8 @@ r_tree = RTree()
 
 records_list = [record1, record2, record3, record4]
 
-returned_records = r_tree.z_order_curve(records_list)
+returned_records = z_order_curve(records_list)
 
 for item in returned_records:
-	print(item.z_value)
+	print(item)
 

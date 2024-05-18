@@ -4,10 +4,11 @@ class Record:
   obj_size = 0
   block_size = 1024 * 32
 
-  def __init__(self, id: int, location: tuple, recID: int):
+  def __init__(self, id: int, location: tuple, recID: int, name = ""):
     self.id = id
     self.location = location
-    self.recID = recID  
+    self.recID = recID
+    self.name = name
     self.z_value = 0  # z-value for the specific record
     # αριθμός block στο οποίο ανήκει το Record στο δίσκο - υπολογίζεται στο parsing του osm/xml αρχείου
   
@@ -24,4 +25,4 @@ class Record:
   
   # Για να μπορούμε να κάνουμε print τα Records
   def __str__(self):
-      return f"Id: {self.id}, Location: {self.location}, recID: {self.recID}"
+      return f"Id: {self.id}, Location: {self.location}, recID: {self.recID}. Name: {self.name}. z-value: {self.z_value}"
