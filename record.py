@@ -18,6 +18,7 @@ class Record:
     Record.obj_size = sys.getsizeof(id)  # bytes of id
     Record.obj_size += sys.getsizeof(location)  # bytes of location
     Record.block_size = Record.block_size // Record.obj_size
+    
 
   # Μέθοδος για να μπορεί η μέθοδος dumps του json να κάνει serialize αντικείμενα της κλάσης Record
   def to_dict(self):
@@ -26,3 +27,7 @@ class Record:
   # Για να μπορούμε να κάνουμε print τα Records
   def __str__(self):
       return f"Id: {self.id}, Location: {self.location}, recID: {self.recID}. Name: {self.name}. z-value: {self.z_value}"
+
+
+  def __lt__(self, other):
+        return False
