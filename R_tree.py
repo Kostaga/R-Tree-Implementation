@@ -6,9 +6,10 @@ import area_overlap as avp
 import split_funcs as sf
 from zorder import z_order_curve
 
+
 import heapq
 import kNN_helper as knn
-
+import skyline_helper as skyline
 
 class RTree():
 
@@ -409,6 +410,46 @@ class RTree():
 		results = [(item.record, (-1) * item.distance) for item in heap]
 		return sorted(results, key=lambda x: x[1])
 		
+	
+	def skyline_query(self) -> set[Record]:
+		# Branch-and-Bound Skyline Algorithm
+		# The algorithm in every step chooses the best Rtree entry to check, according to the mindist
+		# measure. Upon visiting a node, the mindist of its
+		# entries is calculated and entries are inserted into
+		# the priority queue.
+		# The algorithm keeps the discovered skyline
+		# points in the set S.
+		# If the top of the queue is a data point, it is tested
+		# if it is dominated by any point in S. If yes it is
+		# rejected, otherwise it is inserted into S
+
+		S = set()  # Skyline set
+		heap = []  # to work as a min heap
+		heapq.heapify(heap)
+
+		for element in self.root.elements:
+			heapq.heappush(heap, (skyline.min_distance(element), element))
+		
+		while len(heap) > 0:
+			_, element = heapq.heappop(heap)
+			is_dominated = False
+			if isinstance(element, Record):
+				for skyline_element in S:
+					is_dominated = skyline.dominates(skyline_element, element)
+					if is_dominated:
+						break
+				
+				if not is_dominated:
+					S.add(element)
+			else:
+				for child in element.next_block.elements:
+					heapq.heappush(heap, (skyline.min_distance(child), child))
+			
+			
+		return S
+
+		
+
 
 
 	def bottomUp(self, records: list[Record]):
