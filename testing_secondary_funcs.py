@@ -6,6 +6,9 @@ import split_funcs as sf
 import area_overlap as avp
 from R_tree import RTree
 
+from skyline_helper import dominates
+from skyline_helper import min_distance
+
 from random import shuffle
 from copy import deepcopy
 
@@ -187,6 +190,13 @@ if __name__ == '__main__':
 
     # print(area2.min_dist_from_point((0,10)))  # 7.0
 
+
+    # # TESTING DOMINATES
+    # record1 = Record(1, (2.0, 1.0), 1)
+    # record2 = Record(2, (1.0, 0.0), 1)
+    # # print(dominates(record1, record2))  # False
+    # mbr = BoundingArea([Bounds(1.0, 5.0), Bounds(2.0, 6.0)], None)
+    # print(min_distance(mbr)) 
 
     
 

@@ -9,7 +9,7 @@ class Record:
     self.location = location
     self.recID = recID
     self.name = name
-    self.z_value = 0  # z-value for the specific record
+    self.z_value = -1  # z-value for the specific record
     # αριθμός block στο οποίο ανήκει το Record στο δίσκο - υπολογίζεται στο parsing του osm/xml αρχείου
   
   # static method to define block size

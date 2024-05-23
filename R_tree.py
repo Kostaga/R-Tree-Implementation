@@ -155,7 +155,6 @@ class RTree():
 		# if the childpointers in N point to leaves, determine minimum overlap cost
 		
 		# Determine minimum overlap cost
-		# Include point in the passing MBRs ???????
 		if level == -1:  # record is to be added
 			while not current_node.elements[0].next_block.is_leaf:
 				# CS3 Choose the entry E from N that needs least area enlargement to include R
@@ -215,7 +214,6 @@ class RTree():
 		:param node: Block to split
 		:return: None
 		"""
-
 		# Create two new blocks and
 		# connect the proper pointers up and down
 		if node.is_leaf:  # node is a leaf and hence contains records
@@ -362,10 +360,6 @@ class RTree():
 		results: list[Record] = []
 		stack = [self.root]
 		while len(stack) > 0:
-			print("Stack: ")
-			for elem in stack:
-				print(elem, sep=" ")
-			print()
 			node = stack.pop()  # pop the last element / index = -1 by default
 			if node.is_leaf:  # node is leaf, so it contains records
 				for record in node.elements:
@@ -432,20 +426,18 @@ class RTree():
 		
 		while len(heap) > 0:
 			_, element = heapq.heappop(heap)
-			is_dominated = False
+
 			if isinstance(element, Record):
-				for skyline_element in S:
-					is_dominated = skyline.dominates(skyline_element, element)
-					if is_dominated:
-						break
-				
-				if not is_dominated:
+				if any(skyline.dominates(skyline_element, element.location) for skyline_element in S):
+					pass
+				else:
 					S.add(element)
 			else:
-				for child in element.next_block.elements:
-					heapq.heappush(heap, (skyline.min_distance(child), child))
-			
-			
+				if any(skyline.dominates(skyline_element, (bound.lower for bound in element.bounds)) for skyline_element in S):
+					pass
+				else:
+					for child in element.next_block.elements:
+						heapq.heappush(heap, (skyline.min_distance(child), child))
 		return S
 
 		
@@ -460,11 +452,11 @@ class RTree():
 		"""
 		# BU1 Build a list of all leaf nodes
 		block_len = variables.MAX_ELEMENTS
-		sorted_recods = z_order_curve(records)
+		sorted_records = z_order_curve(records)
 		leaf_nodes = []
-		for i in range(0, len(sorted_recods), block_len):
+		for i in range(0, len(sorted_records), block_len):
 			leaf_node = Block(is_leaf=True, parent_mbr=None, parent_block=None)
-			leaf_node.elements = sorted_recods[i:i+block_len]  # get next full block of records
+			leaf_node.elements = sorted_records[i:i+block_len]  # get next full block of records
 			leaf_nodes.append(leaf_node)
 		
 		def recursion(blocks: list):

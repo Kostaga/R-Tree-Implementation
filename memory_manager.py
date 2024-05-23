@@ -1,20 +1,24 @@
-import string
 import xml.etree.cElementTree as et
 import os
 from record import Record
 import json
 from block import Block
-import random
 from location_name_generator import location_name_generator
+from itertools import islice
+import time
 
 
-if __name__ == "__main__":
+def parse_osm() -> list[Record]:
+    '''
+    Parse the OSM file and store the nodes in blocks. Each block is stored in a separate line
+    in the json file 'datafile.json'. The first line of the file contains the 'magic' block which
+    contains information about the number of records and the number of blocks. Each block contains
+    a list of dictionaries, each dictionary represents a record.
+    '''
     nodes = []  # Define nodes in the global scope
 
-    # Τα osm αρχεια ειναι xml απο οσο καταλαβαινω αρα το μετονομάζω για να μην 
-    # υπάρχει σύγχυση με τη βιβλιοθηκη που διαβαζει xml
-    # os.rename('map.osm', 'map.xml')  
-
+    # Τα osm αρχεια ειναι xml στη δομή αρα το μετονομάζω για να μην 
+    # υπάρχει σύγχυση με τη βιβλιοθηκη που διαβαζει xml αρχεια
     try:
         tree=et.parse('map.xml')
     except FileNotFoundError:
@@ -22,8 +26,6 @@ if __name__ == "__main__":
         tree=et.parse('map.xml')
 
     root=tree.getroot()
-
-
 
     # Προσθέτω ένα magic block ως πρώτο "block0" της λίστας nodes
     magic_block = {}
@@ -49,16 +51,9 @@ if __name__ == "__main__":
         nodes[block_index].append(Record(id, location, recID, name=loc_name))
         
 
-    magic_block['num_of_nodes'] = counter  # πόσα nodes έχουμε συνολικά - υπολογίστηκε στο parsing του osm/xml αρχείου
+    magic_block['num_of_records'] = counter  # πόσα records έχουμε συνολικά - υπολογίστηκε στο parsing του osm/xml αρχείου
     magic_block['num_of_blocks'] = block_index
     # Ό,τι άλλη χρησιμη πληροφορία θέλουμε για τα blocks την αποθηκεύουμε εδώ
-
-    # Εκτύπωση των nodes
-    for i in range(1, 5):
-        print("Block: ", i, "Number of nodes: ", len(nodes[i]))
-        for j in range(len(nodes[i])):
-            print(nodes[i][j], "Block: ", i, "Node: ", j)
-
 
     # Convert the 'nodes' list to JSON format and dump each block seperately
     magic_block = json.dumps(magic_block)
@@ -75,26 +70,49 @@ if __name__ == "__main__":
         for i in range(len(nodes_json)):
             file.write(nodes_json[i] + "\n")  
 
+    # Return a list of the records
+    return [record for block in nodes[1:] for record in block]
 
 
-    # Επαναφορά του 2ου block δεδομένων του αρχείου datafile.json - για "εκπαιδευτικούς" σκοπούς
-    from itertools import islice
-    def read_block(block_index):
-        with open('datafile.json', 'r') as file:
-            block = next(islice(file, block_index, block_index + 1))
-            return json.loads(block)
+def read_block(block_index) -> tuple[list[dict], float]:
+    start_time = time.time()
+    with open('datafile.json', 'r') as file:
+        block = next(islice(file, block_index, block_index + 1))
+        end_time = time.time()
+        return json.loads(block), end_time - start_time
+    
 
 
-    print("Block 2: ", read_block(2))
+def delete_record(id, block_index: int) -> None:
+    '''
+    Delete the record with the given ID from the block with the given index
+    '''
+    start_time = time.time()
+    block: list[dict] = read_block(block_index)[0]
+    # Remove the record with the given ID
+    for record in block:
+        if record['id'] == id:
+            block.remove(record)
+            break
 
-    # nodes = []
-    # nodes.append(magic_block)
-    # for i in range(len(nodes_json)):
-    #     nodes.append([Record(node1['id'], node1['location'], node1['recID']) for node1 in nodes_json[i]])
+    # Write the block back to the file
+    block = json.dumps(block)
+
+    with open('datafile.json', 'r') as read_file:
+        lines = read_file.readlines()
+    with open('datafile.json', 'w') as file:
+        counter = 0
+        for line in lines:
+            if counter == block_index:
+                file.write(block + "\n")
+            else:
+                # line = json.loads(line)
+                # line = json.dumps(line)
+                file.write(line)
+            counter += 1
+    
+    end_time = time.time()
+    return end_time - start_time
 
 
-    # for i in range(1, len(nodes)):
-    #     for j in range(len(nodes[i])):
-    #         print(nodes[i][j], "Block: ", i, "Node: ", j)
-
-
+        

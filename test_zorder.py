@@ -6,7 +6,7 @@ from bounding_area import BoundingArea
 from zorder import z_order_curve
 
 
-record1 = Record(1, (5, 5), 1)
+record1 = Record(1, (5.1, 5), 1)
 record2 = Record(2, (8, 3), 1)
 record3 = Record(3, (4, 10), 1)
 record4 = Record(4, (5, 3), 1)
