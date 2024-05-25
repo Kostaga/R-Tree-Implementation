@@ -4,7 +4,7 @@
 # MIN_ELEMENTS = 2
 
 BLOCKSIZE = 32 * 1024 # 32 KB
-RECORDSIZE = 256
+RECORDSIZE = 167
 
 INPUTFILE = "map.xml"
 DATAFILE = "datafile.json"
