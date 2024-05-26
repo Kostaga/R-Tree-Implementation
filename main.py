@@ -23,16 +23,20 @@ def delete_records(r_tree, records):
 
 def range_query(r_tree, range):
 	start_time = time.time()
-	recordsFound = r_tree.range_query(range)
+	r_tree.range_query(range)
 	calculate_time(start_time, "Range query")
 
-def linear_range_query(r_tree, range):
+def linear_range_query(records, range):
 	start_time = time.time()
-	recordsFound = r_tree.linear_range_query(range)
+	results: list[Record] = []
+	for record in records:
+		if range.point_in_area(record.location):
+			results.append(record)
+
 	calculate_time(start_time, "Linear Range query")
 
 
-def knn_query(r_tree,):
+def knn_query(r_tree):
 	start_time = time.time()
 	r_tree.nearest_neighbors((1,3),100)
 	calculate_time(start_time, "KNN query")
@@ -60,7 +64,7 @@ def main():
 	insert_records(r_tree, records)
 	delete_records(r_tree, records)
 	range_query(r_tree, BoundingArea([Bounds(1.0, 100.0), Bounds(1.0, 100.0)], None))
-	# linear_range_query(r_tree, BoundingArea([Bounds(1.0, 100.0), Bounds(1.0, 100.0)], None))
+	linear_range_query(records, BoundingArea([Bounds(1.0, 100.0), Bounds(1.0, 100.0)], None))
 	knn_query(r_tree)
 	skyline_query(r_tree)
 	bottom_up_construction(r_tree, records)
