@@ -76,7 +76,7 @@ def parse_osm() -> list[Record]:
     return [record for block in nodes[1:] for record in block]
 
 
-def read_block(block_index) -> tuple[list[dict], float]:
+def read_block(block_index) -> list[dict]:
     '''
     Read the block with the given index from the file
     '''
@@ -84,16 +84,29 @@ def read_block(block_index) -> tuple[list[dict], float]:
     with open('datafile.json', 'r') as file:
         block = next(islice(file, block_index, block_index + 1))
         end_time = time.time()
-        return json.loads(block), end_time - start_time
+        return json.loads(block)
     
 
+
+def read_record(id, block_index: int) -> dict:
+    '''
+    Get the record with the given ID from the block with the given index
+    '''
+    # Read the block with the given index
+    block: list[dict] = read_block(block_index)
+
+    # Find the record with the given ID inside the block
+    for record in block:
+        if record['id'] == id:
+            return record
+            
 
 def delete_record(id, block_index: int) -> None:
     '''
     Delete the record with the given ID from the block with the given index
     '''
     start_time = time.time()
-    block: list[dict] = read_block(block_index)[0]
+    block: list[dict] = read_block(block_index)
     # Remove the record with the given ID
     for record in block:
         if record['id'] == id:
@@ -111,14 +124,9 @@ def delete_record(id, block_index: int) -> None:
             if counter == block_index:
                 file.write(block + "\n")
             else:
-                # line = json.loads(line)
-                # line = json.dumps(line)
                 file.write(line)
             counter += 1
-    
-    end_time = time.time()
-    return end_time - start_time
-
+   
 
 
 def save_indexfile(r_tree: RTree) -> None:
@@ -136,4 +144,4 @@ def load_indexfile() -> RTree:
     with open('indexfile.bin', 'rb') as f:
         r_tree = pickle.load(f)
     return r_tree
-        
+
