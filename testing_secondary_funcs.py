@@ -11,6 +11,7 @@ from skyline_helper import min_distance
 
 from random import shuffle
 from copy import deepcopy
+from sys import getsizeof
 
 
 if __name__ == '__main__':
@@ -22,16 +23,16 @@ if __name__ == '__main__':
     record6 = Record(6, (11.0, 12.0), 2)
 
     records = [record1, record2, record3, record4, record5, record6]
-    shuffle(records)
+    # shuffle(records)
 
-    area1 = BoundingArea([Bounds(4.0, 9.0), Bounds(2.0, 6.0)], None)
-    area2 = BoundingArea([Bounds(3.0, 7.0), Bounds(1.0, 14.0)], None)
-    area3 = BoundingArea([Bounds(15.0, 20.0), Bounds(6.0, 15.0)], None)
-    area4 = BoundingArea([Bounds(-12.0, 13.0), Bounds(-12.0, 20.0)], None)
-    area5 = BoundingArea([Bounds(9.0, 11.0), Bounds(10.0, 14.0)], None)
-    area6 = BoundingArea([Bounds(-5.0, 3.0), Bounds(3.0, 4.0)], None)
+    # area1 = BoundingArea([Bounds(4.0, 9.0), Bounds(2.0, 6.0)], None)
+    # area2 = BoundingArea([Bounds(3.0, 7.0), Bounds(1.0, 14.0)], None)
+    # area3 = BoundingArea([Bounds(15.0, 20.0), Bounds(6.0, 15.0)], None)
+    # area4 = BoundingArea([Bounds(-12.0, 13.0), Bounds(-12.0, 20.0)], None)
+    # area5 = BoundingArea([Bounds(9.0, 11.0), Bounds(10.0, 14.0)], None)
+    # area6 = BoundingArea([Bounds(-5.0, 3.0), Bounds(3.0, 4.0)], None)
 
-    areas = [area1, area2, area3, area4, area5, area6]
+    # areas = [area1, area2, area3, area4, area5, area6]
     # shuffle(areas)
 
     # TESTING include_point
@@ -198,5 +199,11 @@ if __name__ == '__main__':
     # mbr = BoundingArea([Bounds(1.0, 5.0), Bounds(2.0, 6.0)], None)
     # print(min_distance(mbr)) 
 
+    # record1 = Record(1, (1.0, 12.0), 1)
+    # record1.name = "Stardew valley"
+    # mbr = BoundingArea([Bounds(1.0, 5.0), Bounds(2.0, 6.0)], None)
+    # print(getsizeof(mbr))
+    # Record.define_block_size(record1)
+    # print(Record.obj_size)
     
 

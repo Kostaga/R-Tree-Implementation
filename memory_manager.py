@@ -2,6 +2,8 @@ import xml.etree.cElementTree as et
 import os
 from record import Record
 import json
+import pickle
+from R_tree import RTree
 from block import Block
 from location_name_generator import location_name_generator
 from itertools import islice
@@ -75,6 +77,9 @@ def parse_osm() -> list[Record]:
 
 
 def read_block(block_index) -> tuple[list[dict], float]:
+    '''
+    Read the block with the given index from the file
+    '''
     start_time = time.time()
     with open('datafile.json', 'r') as file:
         block = next(islice(file, block_index, block_index + 1))
@@ -115,4 +120,20 @@ def delete_record(id, block_index: int) -> None:
     return end_time - start_time
 
 
+
+def save_indexfile(r_tree: RTree) -> None:
+    '''
+    Save the R-Tree to the index file
+    '''
+    with open('indexfile.bin', 'wb') as f:
+        pickle.dump(r_tree, f)
+
+
+def load_indexfile() -> RTree:
+    '''
+    Load the R-Tree from the index file
+    '''
+    with open('indexfile.bin', 'rb') as f:
+        r_tree = pickle.load(f)
+    return r_tree
         

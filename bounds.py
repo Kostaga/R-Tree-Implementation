@@ -11,8 +11,6 @@ class Bounds:
             self.lower = upper
             self.upper = lower
     
-    
-
     def __str__(self):
         return f"Bounds: {self.lower} - {self.upper}"
 

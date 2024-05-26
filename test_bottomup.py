@@ -8,8 +8,6 @@ from memory_manager import parse_osm
 import time
 
 records = parse_osm()
-# for rec in records:
-#     print(rec)
 r_tree = RTree()
 start = time.time()
 r_tree.bottomUp(records)

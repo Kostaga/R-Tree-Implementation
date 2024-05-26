@@ -397,7 +397,7 @@ class RTree():
 				for item in sorted_mbrs:
 					mbr = item[0]
 					distance = item[1]
-					if distance < radius:  # if the distance is greater than the distance of the k-th nearest neighbor
+					if distance < radius:  # if the distance is less than the distance of the k-th nearest neighbor
 						recursion(mbr.next_block)
 
 		recursion(self.root)

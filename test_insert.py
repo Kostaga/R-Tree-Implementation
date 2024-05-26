@@ -12,7 +12,7 @@ if __name__ == '__main__':
     print(len(records))
     r_tree = RTree()
     start_time = time.time()
-    for i, record in enumerate(records[:800]):
+    for i, record in enumerate(records[:1000]):
         print(i)
         r_tree.insert(record)
    
