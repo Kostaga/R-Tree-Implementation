@@ -370,6 +370,7 @@ class RTree():
 					if area.area_overlap(mbr) > 0:  # area_overlap returns the overlap area so it needs to be greater than zero
 						stack.append(mbr.next_block)
 		return results
+	
 
 
 	def nearest_neighbors(self, point: tuple, k: int) -> list[Record]:
