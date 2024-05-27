@@ -274,13 +274,6 @@ class RTree():
 		:param record: Record object to delete
 		:return: None
 		"""
-		record_bounds = BoundingArea(bounds=BoundingArea.find_bounds_of_records([record]), next_block=None)
-
-		# decrease upper bound and lower bound by 0.001 to avoid floating point errors
-		for bound in record_bounds.bounds:
-			bound.upper += 0.001
-			bound.lower -= 0.001
-
 		stack = [self.root]
 		while len(stack) > 0:
 			node = stack.pop()  # pop the last element / index = -1 by default
@@ -291,9 +284,8 @@ class RTree():
 					break
 			else:  # node is non-leaf, so it contains bounding areas
 				for mbr in node.elements:
-					if record_bounds.area_overlap(mbr) > 0:  # area_overlap returns the overlap area so it needs to be greater than zero
+					if mbr.point_in_area(record.location):  # check if the record is in the mbr
 						stack.append(mbr.next_block)
-
 
 		RTree.level_overflow.clear()  # clear the set of levels that have been overflowed
 
@@ -373,7 +365,7 @@ class RTree():
 	
 
 
-	def nearest_neighbors(self, point: tuple, k: int) -> list[Record]:
+	def nearest_neighbors(self, point: tuple, k: int) -> list[tuple[Record, float]]:
 		"""
 		:param record: A tuple of location coordinates
 		:return: k Records which are the nearest neighbors to the given point
@@ -398,7 +390,7 @@ class RTree():
 				for item in sorted_mbrs:
 					mbr = item[0]
 					distance = item[1]
-					if distance < radius:  # if the distance is greater than the distance of the k-th nearest neighbor
+					if distance < radius:  # if the distance is less than the distance of the k-th nearest neighbor
 						recursion(mbr.next_block)
 
 		recursion(self.root)
