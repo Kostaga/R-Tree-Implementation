@@ -4,6 +4,7 @@ from bounding_area import BoundingArea
 from R_tree import RTree
 from record import Record
 from block import Block
+from memory_manager import parse_osm
 
 # WORKS ONLY FOR TWO DIMENSIONS
 
@@ -24,11 +25,12 @@ def get_rectangle_width(mbr: BoundingArea):
 def visualize_tree(tree: RTree):
     # Initialize ploting space
     if tree.root.is_leaf:
-        ploting_space = [[min([record.location[0] for record in tree.root.elements]) - 0.1, max([record.location[0] for record in tree.root.elements]) + 0.1], 
-                         [min([record.location[1] for record in tree.root.elements]) - 0.1, max([record.location[1] for record in tree.root.elements]) + 0.1]]
+        ploting_space = [[min([record.location[0] for record in tree.root.elements]), max([record.location[0] for record in tree.root.elements])], 
+                         [min([record.location[1] for record in tree.root.elements]), max([record.location[1] for record in tree.root.elements])]]
     else:
-        ploting_space = [[min([mbr.bounds[0].lower for mbr in tree.root.elements]) - 0.1, max([mbr.bounds[0].upper for mbr in tree.root.elements]) + 0.1], 
-                         [min([mbr.bounds[1].lower for mbr in tree.root.elements]) - 0.1, max([mbr.bounds[1].upper for mbr in tree.root.elements]) + 0.1]]
+        ploting_space = [[min([mbr.bounds[0].lower for mbr in tree.root.elements]), max([mbr.bounds[0].upper for mbr in tree.root.elements])], 
+                         [min([mbr.bounds[1].lower for mbr in tree.root.elements]), max([mbr.bounds[1].upper for mbr in tree.root.elements])]]
+    print(ploting_space)
 
     # Plot rectangles using a recursive function that traverses the tree
     fig, ax = plt.subplots()
@@ -69,16 +71,14 @@ if __name__ == '__main__':
     tree = RTree()
     # Create 10 random records
     records = []
-    for _ in range(50):
+    for _ in range(15):
         id = np.random.randint(0, 100)
         location = np.random.rand(2)
         record = Record(id, location, -1)
         records.append(record)
-
+    records = parse_osm()[:50]
     # Insert records into the R-tree
-    for record in records:
-        tree.insert(record)
-
+    tree.bottomUp(records)
     # Print the tree
     print(tree)
 
