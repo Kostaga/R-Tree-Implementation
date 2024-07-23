@@ -472,7 +472,6 @@ class RTree():
 
 				# If the parent block is full, create a new parent block
 				if current_parent_block.is_full():
-					print(len(current_parent_block.elements), Block.max)
 					current_parent_block = Block(is_leaf=False, parent_mbr=None, parent_block=None)
 					parent_blocks.append(current_parent_block)
 

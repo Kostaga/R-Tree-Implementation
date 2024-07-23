@@ -8,7 +8,7 @@ def z_order_curve(records: list[Record]) -> list[Record]:
 	def calculate_z_order(coords: tuple) -> int:
 		"""Helper function to calculate Z-order for a point in any number of dimensions."""
 		z = 0
-		coords = [round(coord) for coord in coords]
+		coords = [round(1000000*coord) for coord in coords]
 		max_bits = max(coord.bit_length() for coord in coords)
 		for i in range(max_bits):
 			for j, coord in enumerate(coords):
