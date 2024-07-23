@@ -163,9 +163,9 @@ class BoundingArea:
         new_bounds = []
         for dimension in range(var.DIMENSIONS):
             # For each dimension, find the minimum and maximum values of the bounding areas
-            min_values = np.min([bounding_area.bounds[dimension].lower for bounding_area in bounding_areas])
-            max_values = np.max([bounding_area.bounds[dimension].upper for bounding_area in bounding_areas])
-            new_bounds.append(Bounds(min_values, max_values))
+            min_value = np.min([bounding_area.bounds[dimension].lower for bounding_area in bounding_areas])
+            max_value = np.max([bounding_area.bounds[dimension].upper for bounding_area in bounding_areas])
+            new_bounds.append(Bounds(min_value, max_value))
     
         return new_bounds
     
