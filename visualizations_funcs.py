@@ -75,11 +75,6 @@ if __name__ == '__main__':
         record = Record(id, location, -1)
         records.append(record)
 
-
-    ploting_space = [[min([record.location[0] for record in records]), max([record.location[0] for record in records])], 
-                     [min([record.location[1] for record in records]), max([record.location[1] for record in records])]]
-
-
     # Insert records into the R-tree
     for record in records:
         tree.insert(record)
