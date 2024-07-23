@@ -1,4 +1,9 @@
-BLOCKSIZE = 32 * 1024 # 32 KB
+# for testing purposes, BLOCKSIZE was set to 1280 --> 5 records per block
+# which means:
+# MAX_ELEMENTS = 5
+# MIN_ELEMENTS = 2
+
+BLOCKSIZE = 167 * 5 # 32 KB
 RECORDSIZE = 167
 
 INPUTFILE = "map.xml"

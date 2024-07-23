@@ -461,7 +461,6 @@ class RTree():
 				return
 			
 			parent_blocks = []
-			counter = 0
 			current_parent_block = Block(is_leaf=False, parent_mbr=None, parent_block=None)  # create a new parent block
 			parent_blocks.append(current_parent_block)  # add the parent block to the list of new parent blocks
 			for block in blocks:
@@ -471,16 +470,18 @@ class RTree():
 				else: 
 					mbr = BoundingArea(bounds=BoundingArea.find_bounds_of_areas(block.elements), next_block=block)
 
+				# If the parent block is full, create a new parent block
+				if current_parent_block.is_full():
+					print(len(current_parent_block.elements), Block.max)
+					current_parent_block = Block(is_leaf=False, parent_mbr=None, parent_block=None)
+					parent_blocks.append(current_parent_block)
+
 				# Insert the mbr into the parent block and set the parent mbr and parent block of the child block
 				current_parent_block.insert(mbr)
 				block.parent_mbr = mbr
 				block.parent_block = current_parent_block
 				
-				# If the parent block is full, create a new parent block
-				counter += 1
-				if counter % block_len == 0:
-					current_parent_block = Block(is_leaf=False, parent_mbr=None, parent_block=None)
-					parent_blocks.append(current_parent_block)
+				
 			
 			recursion(parent_blocks)
 
