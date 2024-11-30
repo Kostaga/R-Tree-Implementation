@@ -1,5 +1,4 @@
 from record import Record
-from copy import deepcopy
 import variables
 
 class Block:

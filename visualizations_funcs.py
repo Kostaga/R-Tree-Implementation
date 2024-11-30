@@ -73,12 +73,13 @@ if __name__ == '__main__':
     records = []
     for _ in range(15):
         id = np.random.randint(0, 100)
-        location = np.random.rand(2)
+        location = 10*np.random.rand(2)
         record = Record(id, location, -1)
         records.append(record)
     records = parse_osm()[:50]
     # Insert records into the R-tree
-    tree.bottomUp(records)
+    for record in records:
+        tree.insert(record)
     # Print the tree
     print(tree)
 
